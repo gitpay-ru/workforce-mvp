@@ -9,6 +9,7 @@ services:
     command: uvicorn main:app --host 0.0.0.0 --reload
     volumes:
       - ./project:/usr/src/app
+      - ./tmp:/usr/src/app/tmp
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
@@ -20,6 +21,7 @@ services:
     command: celery worker --app=worker.celery --loglevel=info --logfile=logs/celery.log
     volumes:
       - ./project:/usr/src/app
+      - ./tmp:/usr/src/app/tmp
     environment:
       - CELERY_BROKER_URL=redis://redis:6379/0
       - CELERY_RESULT_BACKEND=redis://redis:6379/0
