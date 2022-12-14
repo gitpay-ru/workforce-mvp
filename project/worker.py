@@ -21,10 +21,14 @@ celery = Celery(__name__)
 celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:6379")
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 
+
+
 @celery.task(name="create_schedule")
 def create_schedule(shift_names):
     shutil.copyfile("./tmp/data", f'./tmp/{current_task.request.id}')
 
+    HMin = 60
+    DayH = 24
     shift_names = shift_names.split(',')
     shifts_coverage = get_shift_coverage(shift_names)
 
@@ -34,8 +38,7 @@ def create_schedule(shift_names):
     days = (max_date - min_date).days + 1
     date_diff = get_datetime(df.iloc[1]['tc']) - get_datetime(df.iloc[0]['tc'])
     step_min = int(date_diff.total_seconds() / HMin)
-    HMin = 60
-    DayH = 24
+    
     ts = int(HMin / step_min)
     required_resources = []
     for i in range(days):
