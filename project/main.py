@@ -58,8 +58,8 @@ def get_task_status(id):
 
 @app.get("/task/{id}/result")
 def get_schedule_result(id):
-    return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/json")
-    # return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/octet-stream")
+    # return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/json")
+    return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/octet-stream")
 
 # @app.get("/task/{id}/image")
 # def get_rostering_image(id):
