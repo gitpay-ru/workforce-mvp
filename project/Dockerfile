@@ -1,5 +1,13 @@
 # pull official base image
-FROM python:3.9.5-slim-buster
+# FROM python:3.9.5-slim-buster
+# FROM python:3.9.5-alpine
+FROM python:3.9.5
+
+
+# RUN apk update
+# RUN apk add --no-cache gcc
+# RUN apk add git
+
 
 # set work directory
 WORKDIR /usr/src/app
