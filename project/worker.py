@@ -29,12 +29,16 @@ def required_positions(call_volume, aht, interval, art, service_level):
 
 
 @celery.task(name="create_task")
-def create_task(shift_names, num_resources, min_working_hours, max_resting):
+def create_task():#shift_names, num_resources, min_working_hours, max_resting):
     shutil.copyfile("./tmp/data", f'./tmp/{current_task.request.id}')
+    shutil.copyfile("./tmp/meta", f'./tmp/{current_task.request.id}_meta')
+
+    with open(f'./tmp/{current_task.request.id}_meta', "r") as f:
+        meta_info = json.load(f)
 
     HMin = 60
     DayH = 24
-    shift_names = shift_names.split(',')
+    shift_names = meta_info['shift_names'].split(',')
     shifts_coverage = get_shift_coverage(shift_names)
 
     df = pd.read_csv(f'./tmp/{current_task.request.id}')
@@ -52,7 +56,7 @@ def create_task(shift_names, num_resources, min_working_hours, max_resting):
         df0 = df[i * DayH * ts : (i + 1) * DayH * ts]
         required_resources.append(df0['positions'].tolist())
 
-    # Scheduling
+    print('Scheduling started')
     scheduler = MinAbsDifference(num_days = days,  # S
                                  periods = DayH * ts,  # P
                                  shifts_coverage = shifts_coverage,
@@ -60,50 +64,67 @@ def create_task(shift_names, num_resources, min_working_hours, max_resting):
                                  max_period_concurrency = int(df['positions'].max()),  # gamma
                                  max_shift_concurrency=int(df['positions'].mean()),  # beta
                                  )
-    solution = scheduler.solve()
+    sch_solution = scheduler.solve()
 
     with open(f'./tmp/{current_task.request.id}_scheduling.json', 'w') as f:
-        json.dump(solution, f, indent=2)
+        json.dump(sch_solution, f, indent=2)
 
-    # Rostering
-    magic = 1.5 # todo
-    
-    resources = [f'emp_{i}' for i in range(0, int(magic * num_resources) )]
-    shift_names = list(shifts_coverage.keys())
-    shifts_hours = [int(i.split('_')[1]) for i in shift_names]
+    status = sch_solution['status']
+    print(f'Scheduling status: {status}')
 
-    print(resources)
-    print(shift_names)
-    print(shifts_hours)
+    if status not in ['OPTIMAL', 'FEASIBLE']:
+        return False
 
-    resources_shifts = solution['resources_shifts']
-    df1 = pd.DataFrame(resources_shifts)
-    df2 = df1.pivot(index='shift', columns='day', values='resources').rename_axis(None, axis=0)
-    df2['combined']= df2.values.tolist()
-    required_resources = df2['combined'].to_dict()
+    resources_phantoms = list(meta_info['resources_phantoms'])
+    extra_phantoms = [0] + resources_phantoms
 
-    banned_shifts = []
-    non_sequential_shifts = []
-    resources_preferences = []
-    resources_prioritization = []
+    for i in extra_phantoms:
+                # magic = 1.5 # todo
+        resources = meta_info['resources']
+        phantoms = [f'phantom_{i}' for i in range(0, int(i * len(resources)) )]
+        print(f'Rostering started with {int(i * len(resources))} phantoms')
 
-    solver = MinHoursRoster(num_days=days,
-        resources=resources,
-        shifts=shift_names,
-        shifts_hours=shifts_hours,
-        min_working_hours=min_working_hours,
-        max_resting=max_resting,
-        non_sequential_shifts=non_sequential_shifts,
-        banned_shifts=banned_shifts,
-        required_resources=required_resources,
-        resources_preferences = resources_preferences,
-        resources_prioritization = resources_prioritization
-        )
+        resources.extend(phantoms)
 
-    solution = solver.solve()
+        shift_names = list(shifts_coverage.keys())
+        shifts_hours = [int(i.split('_')[1]) for i in shift_names]
 
-    with open(f'./tmp/{current_task.request.id}_rostering.json', 'w') as outfile:
-        json.dump(solution, outfile, indent=2)
+        resources_shifts = sch_solution['resources_shifts']
+        df1 = pd.DataFrame(resources_shifts)
+        df2 = df1.pivot(index='shift', columns='day', values='resources').rename_axis(None, axis=0)
+        df2['combined']= df2.values.tolist()
+        required_resources = df2['combined'].to_dict()
+
+        banned_shifts = []
+        non_sequential_shifts = []
+        resources_preferences = []
+        resources_prioritization = []
+
+        min_working_hours = meta_info['min_working_hours']
+        max_resting = meta_info['max_resting']
+
+        solver = MinHoursRoster(num_days=days,
+            resources=resources,
+            shifts=shift_names,
+            shifts_hours=shifts_hours,
+            min_working_hours=min_working_hours,
+            max_resting=max_resting,
+            non_sequential_shifts=non_sequential_shifts,
+            banned_shifts=banned_shifts,
+            required_resources=required_resources,
+            resources_preferences = resources_preferences,
+            resources_prioritization = resources_prioritization
+            )
+
+        solution = solver.solve()
+
+        status = solution['status']
+        print(f'Rostering status: {status}')
+
+        if status in ['OPTIMAL', 'FEASIBLE']:
+            with open(f'./tmp/{current_task.request.id}_rostering.json', 'w') as outfile:
+                json.dump(solution, outfile, indent=2)
+            return True
 
     return True
 

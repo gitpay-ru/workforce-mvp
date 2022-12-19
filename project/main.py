@@ -20,30 +20,18 @@ templates = Jinja2Templates(directory="templates")
 # def home(request: Request):
 #     return templates.TemplateResponse("home.html", context={"request": request})
 
-#Base model
-class Options (BaseModel):
-    shift_names: str = "Day_9_6_13_15,Night_9_21_22_15"
-    num_resources: int = 375
-    min_working_hours: int = 176
-    max_resting: int = 9
-
 @app.post("/task", status_code=201)
 def submit_task(
-    options: Options = Depends(),
-    files: UploadFile = File(...)
+    data_file: UploadFile = File(...),
+    meta_file: UploadFile = File(...)
 ):
-    body = options.dict()
+    with open("./tmp/data", "wb") as f:
+        f.write(data_file.file.read())
 
-    f = files
-    with open("./tmp/data", "wb") as file_object:
-        file_object.write(f.file.read())
+    with open("./tmp/meta", "wb") as f:
+        f.write(meta_file.file.read())
 
-    task = create_task.delay(
-        body['shift_names'], 
-        body['num_resources'],
-        body['min_working_hours'],
-        body['max_resting']
-        )
+    task = create_task.delay()
     return JSONResponse({"id": task.id})
 
 @app.get("/task/{id}")

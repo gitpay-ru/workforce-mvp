@@ -1,0 +1,15 @@
+[2022-12-19 11:01:57,709: INFO/MainProcess] Connected to redis://redis:6379/0
+[2022-12-19 11:01:57,717: INFO/MainProcess] mingle: searching for neighbors
+[2022-12-19 11:01:58,735: INFO/MainProcess] mingle: all alone
+[2022-12-19 11:01:58,750: INFO/MainProcess] celery@cd2d8779fca4 ready.
+[2022-12-19 11:02:01,259: INFO/MainProcess] Received task: create_task[c8b8e9c9-d8e8-4c9d-8e90-7d418d5530ae]  
+[2022-12-19 11:02:01,387: INFO/MainProcess] Events of group {task} enabled by remote.
+[2022-12-19 11:02:02,090: WARNING/ForkPoolWorker-7] Scheduling started
+[2022-12-19 11:02:06,608: WARNING/ForkPoolWorker-7] Scheduling status: OPTIMAL
+[2022-12-19 11:02:06,609: WARNING/ForkPoolWorker-7] Rostering started with 0 phantoms
+[2022-12-19 11:16:27,200: WARNING/ForkPoolWorker-7] Rostering status: UNKNOWN
+[2022-12-19 11:16:27,201: WARNING/ForkPoolWorker-7] Rostering started with 75 phantoms
+[2022-12-19 11:31:36,934: WARNING/ForkPoolWorker-7] Rostering status: UNKNOWN
+[2022-12-19 11:31:36,935: WARNING/ForkPoolWorker-7] Rostering started with 180 phantoms
+[2022-12-19 11:41:41,997: WARNING/ForkPoolWorker-7] Rostering status: OPTIMAL
+[2022-12-19 11:41:42,269: INFO/ForkPoolWorker-7] Task create_task[c8b8e9c9-d8e8-4c9d-8e90-7d418d5530ae] succeeded in 2381.0078102999996s: True
