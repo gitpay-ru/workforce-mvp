@@ -2,6 +2,8 @@ import os
 import time
 import shutil
 import json
+
+import numpy as np
 import pandas as pd
 import math
 from pyworkforce.rostering.binary_programming import MinHoursRoster
@@ -23,13 +25,78 @@ celery.conf.broker_url = os.environ.get("CELERY_BROKER_URL", "redis://localhost:
 celery.conf.result_backend = os.environ.get("CELERY_RESULT_BACKEND", "redis://localhost:6379")
 
 def required_positions(call_volume, aht, interval, art, service_level):
-  erlang = ErlangC(transactions=call_volume, aht=aht / 60.0, interval=interval, asa=art / 100.0, shrinkage=0.0)
+  erlang = ErlangC(transactions=call_volume, aht=aht / 60.0, interval=interval, asa=art / 60.0, shrinkage=0.0)
   positions_requirements = erlang.required_positions(service_level=service_level / 100.0, max_occupancy=1.00)
   return positions_requirements['positions']
 
+def position_statistics(call_volume, aht, interval, art, service_level, positions):
+    erlang = ErlangC(transactions=call_volume, aht=aht / 60.0, interval=interval, asa=art / 60.0, shrinkage=0.0)
+
+    if (positions > 0):
+        achieved_service_level = erlang.service_level(positions, scale_positions=False) * 100
+        achieved_occupancy = erlang.achieved_occupancy(positions, scale_positions=False)
+        waiting_probability = erlang.waiting_probability(positions=positions) * 100
+
+        return (achieved_service_level, achieved_occupancy, waiting_probability)
+    else:
+        return (0, 0, 0)
+
+def calculate_achieved_stats(shift_names, rostering_solution, df_csv):
+    # todo: fix hardcoded Days number
+    HMin = 60
+    DayH = 24
+    NDays = 31
+
+    # 1. Get all possible shifts with daily coverage
+    shifts_coverage = get_shift_coverage(shift_names)
+
+    # 2. Get actual resources assignments per day & calculate the sum of resources
+    # initiate daily zero sequences
+    daily_demand = []
+    for _ in range(NDays):
+        # todo: fix hardcoded intervals
+        daily_demand.append(np.zeros(96))
+
+    # rostering data contains shoft assigment e.g. 0 0 0 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 per resource
+    # => just sum everything to get overall day+intervals assignments
+    for rs in rostering_solution['resource_shifts']:
+        day = rs['day'] # day 1, day 2, ...
+        shift = rs['shift']
+
+        shift_array = np.array(shifts_coverage[shift])
+        daily_demand[day-1] += np.array(shift_array)
+
+    # 3. Get input csv statistics & recalculate erlangs
+
+    min_date = get_datetime(min(df_csv['tc']))
+    max_date = get_datetime(max(df_csv['tc']))
+    days = (max_date - min_date).days + 1
+    date_diff = get_datetime(df_csv.iloc[1]['tc']) - get_datetime(df_csv.iloc[0]['tc'])
+    step_min = int(date_diff.total_seconds() / HMin)
+
+    ts = int(HMin / step_min)
+    daily_intervals = DayH * ts
+
+    for day in range(days):
+        for i in range(daily_intervals):
+            df_csv.loc[day*daily_intervals + i, "achieved_positions"] = daily_demand[day][i]
+
+    df_csv['achieved_positions'] = df_csv['achieved_positions'].astype('int')
+
+    for i in range(len(df_csv)):
+        sl, occ, art = position_statistics(df_csv.loc[i, 'call_volume'], df_csv.loc[i, 'aht'], 15, df_csv.loc[i, 'art'], df_csv.loc[i, 'service_level'],
+                            df_csv.loc[i, 'achieved_positions'])
+        df_csv.loc[i, 'achieved_sl'] = round(sl, 2)
+        df_csv.loc[i, 'achieved_occ'] = round(occ, 2)
+        df_csv.loc[i, 'achieved_art'] = round(art, 2)
+
+
+    return df_csv
 
 @celery.task(name="create_task")
 def create_task():#shift_names, num_resources, min_working_hours, max_resting):
+
+    # 0. Load data
     shutil.copyfile("./tmp/data", f'./tmp/{current_task.request.id}')
     shutil.copyfile("./tmp/meta", f'./tmp/{current_task.request.id}_meta')
 
@@ -38,9 +105,12 @@ def create_task():#shift_names, num_resources, min_working_hours, max_resting):
 
     HMin = 60
     DayH = 24
+    # todo: fix hardcoded Days number
+    NDays = 31
     shift_names = meta_info['shift_names'].split(',')
     shifts_coverage = get_shift_coverage(shift_names)
 
+    # 1. Calculate required positions, based on input .csv
     df = pd.read_csv(f'./tmp/{current_task.request.id}')
     df['positions'] = df.apply(lambda row: required_positions(row['call_volume'], row['aht'], 15, row['art'], row['service_level']), axis=1)
 
@@ -51,41 +121,43 @@ def create_task():#shift_names, num_resources, min_working_hours, max_resting):
     step_min = int(date_diff.total_seconds() / HMin)
     
     ts = int(HMin / step_min)
-    required_resources = []
-    for i in range(days):
-        df0 = df[i * DayH * ts : (i + 1) * DayH * ts]
-        required_resources.append(df0['positions'].tolist())
 
-    print('Scheduling started')
-    scheduler = MinAbsDifference(num_days = days,  # S
-                                 periods = DayH * ts,  # P
-                                 shifts_coverage = shifts_coverage,
-                                 required_resources = required_resources,
-                                 max_period_concurrency = int(df['positions'].max()),  # gamma
-                                 max_shift_concurrency=int(df['positions'].mean()),  # beta
-                                 )
-    sch_solution = scheduler.solve()
+    df['target_positions'] = df['positions']   # persist positions for future use
+    ratio = 1.0          # this is a starting resource scaling -> trying to schedule with required coverage
 
-    with open(f'./tmp/{current_task.request.id}_scheduling.json', 'w') as f:
-        json.dump(sch_solution, f, indent=2)
+    # downgrade resource requirements on each iteration according to the configured percentage
+    # on every failed operation will be reduce required resource by some % of original
+    resources_degradation = list(meta_info['resources_degradation'])
+    for ratio in resources_degradation:
+        print(f'==================================')
+        print(f'Solving with positions ratio = {ratio}')
+        df['positions'] = df['target_positions'].apply(lambda x: int(x*ratio))
 
-    status = sch_solution['status']
-    print(f'Scheduling status: {status}')
+        required_resources = []
+        for i in range(days):
+            df0 = df[i * DayH * ts : (i + 1) * DayH * ts]
+            required_resources.append(df0['positions'].tolist())
 
-    if status not in ['OPTIMAL', 'FEASIBLE']:
-        return False
+        print('Scheduling started')
+        scheduler = MinAbsDifference(num_days = days,  # S
+                                     periods = DayH * ts,  # P
+                                     shifts_coverage = shifts_coverage,
+                                     required_resources = required_resources,
+                                     max_period_concurrency = int(df['positions'].max()),  # gamma
+                                     max_shift_concurrency=int(df['positions'].mean()),  # beta
+                                     )
+        sch_solution = scheduler.solve()
 
-    resources_phantoms = list(meta_info['resources_phantoms'])
-    extra_phantoms = [0] + resources_phantoms
+        with open(f'./tmp/{current_task.request.id}_scheduling.json', 'w') as f:
+            json.dump(sch_solution, f, indent=2)
 
-    for i in extra_phantoms:
-                # magic = 1.5 # todo
+        status = sch_solution['status']
+        print(f'Scheduling status: {status}')
+
+        if status not in ['OPTIMAL', 'FEASIBLE']:
+            return False
+
         resources = meta_info['resources']
-        phantoms = [f'phantom_{i}' for i in range(0, int(i * len(resources)) )]
-        print(f'Rostering started with {int(i * len(resources))} phantoms')
-
-        resources.extend(phantoms)
-
         shift_names = list(shifts_coverage.keys())
         shifts_hours = [int(i.split('_')[1]) for i in shift_names]
 
@@ -124,6 +196,15 @@ def create_task():#shift_names, num_resources, min_working_hours, max_resting):
         if status in ['OPTIMAL', 'FEASIBLE']:
             with open(f'./tmp/{current_task.request.id}_rostering.json', 'w') as outfile:
                 json.dump(solution, outfile, indent=2)
+
+            print(f'Calculating achieved statistics')
+            df_out = calculate_achieved_stats(shift_names, solution, df)
+
+            _output_csv_filename = f'./tmp/{current_task.request.id}_achieved_stats'
+            df_out.to_csv(_output_csv_filename)
+
+            print(f'Done')
+
             return True
 
     return True

@@ -134,6 +134,10 @@ def get_rostering_result(id):
 #    return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/json")
     return StreamingResponse(iterfile(f'{id}_rostering.json'), media_type = "application/octet-stream")
 
+@app.get("/stats/{id}/result")
+def get_stats_result(id):
+    return StreamingResponse(iterfile(f'{id}_achieved_stats'), media_type = "application/octet-stream")
+
 
 
 
