@@ -234,8 +234,10 @@ class MonthlyShiftScheduling:
 
         _9h_interval = MAX_WORKING_HOURS * INTERVALS_PER_HOUR
         _1h_interval = 1 * INTERVALS_PER_HOUR
+        _12h_interval = 12 * INTERVALS_PER_HOUR
+        _total_max_interval = self.num_days * 24 * INTERVALS_PER_HOUR
 
-        # 2. Shift constraints on continuous sequence :
+        # 2.1 Shift constraints on continuous sequence :
         #     (work_type, hard_min, soft_min, min_penalty, soft_max, hard_max, max_penalty)
         shift_constraints = [
             # One or two consecutive days of rest, this is a hard constraint.
@@ -337,20 +339,34 @@ class MonthlyShiftScheduling:
             # 0 - we ignore last dimension, as it distinguishes only working/resting
             obj_bool_coeffs.append(w)
 
-        # Shift sequence constraints for all employees are same
+        # Shift sequence constraints for all employees are same (per day)
+        # for ct in shift_constraints:
+        #     work_type, hard_min, soft_min, min_cost, soft_max, hard_max, max_cost = ct
+        #     for e in range(self.num_employees):
+        #         for d in range(self.num_days):
+        #             works = [work[e, d, i, work_type] for i in range(self.num_intervals_per_day)]
+        #
+        #             variables, coeffs = add_soft_sequence_constraint(
+        #                 model, works,
+        #                 hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
+        #                 f'shift_constraint(employee {e}, day {d}, work_type {work_type})')
+        #
+        #             obj_bool_vars.extend(variables)
+        #             obj_bool_coeffs.extend(coeffs)
+
+        # Shift sequence constraints -- flattern all intervals
         for ct in shift_constraints:
             work_type, hard_min, soft_min, min_cost, soft_max, hard_max, max_cost = ct
             for e in range(self.num_employees):
-                for d in range(self.num_days):
-                    works = [work[e, d, i, work_type] for i in range(self.num_intervals_per_day)]
+                works = [work[e, d, i, work_type] for d in range(self.num_days) for i in range(self.num_intervals_per_day)]
 
-                    variables, coeffs = add_soft_sequence_constraint(
-                        model, works,
-                        hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
-                        f'shift_constraint(employee {e}, day {d}, work_type {work_type})')
+                variables, coeffs = add_soft_sequence_constraint(
+                    model, works,
+                    hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
+                    f'shift_constraint(employee {e}, day {d}, work_type {work_type})')
 
-                    obj_bool_vars.extend(variables)
-                    obj_bool_coeffs.extend(coeffs)
+                obj_bool_vars.extend(variables)
+                obj_bool_coeffs.extend(coeffs)
 
         # Weekly sum constraints
         # num_weeks = math.ceil(self.num_days / 7)
@@ -360,11 +376,8 @@ class MonthlyShiftScheduling:
             work_type, hard_min, soft_min, min_cost, soft_max, hard_max, max_cost = ct
             for e in range(self.num_employees):
                 for w in range(num_weeks):
-                    works = []
-                    for dw in range(7):
-                        day_work = [work[e, dw + w * 7, i, work_type] for i in range(self.num_intervals_per_day)]
-                        works.extend(day_work)
 
+                    works = [work[e, dw + w * 7, i, work_type] for dw in range(7) for i in range(self.num_intervals_per_day)]
                     variables, coeffs = add_soft_sum_constraint(
                         model, works,
                         hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
