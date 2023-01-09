@@ -156,6 +156,22 @@ def add_soft_sum_constraint(model, works, hard_min, soft_min, min_cost,
     return cost_variables, cost_coefficients
 
 
+def add_min_sequence_length_constraint(model, works, hard_min):
+    """Sequence constraint on true variables with min hard bound.
+  This constraint look at every maximal contiguous sequence of variables
+  assigned to true. If forbids sequence of length < hard_min.
+  Args:
+    model: the sequence constraint is built on this model.
+    works: a list of Boolean variables.
+    hard_min: any sequence of true variables must have a length of at least
+      hard_min.
+  """
+    # Forbid sequences that are too short.
+    for length in range(1, hard_min):
+        for start in range(len(works) - length + 1):
+            model.AddBoolOr(negated_bounded_span(works, start, length))
+
+
 # the model tends to minimize the penalties
 # => for the desired intervals, we minimize it by setting proper weight
 DEFAULT_REQUEST_WEIGHT = -2
@@ -273,7 +289,13 @@ class MonthlyShiftScheduling:
 
             # 12h rest, 1.5 hrs
             (2, 1, 1, 1, 1, 2, _12h_interval, 2),
+        ]
 
+        # 2.2 min length constrains
+        #     (shape_type, work_type, min_length
+        min_lenght_constrains = [
+            # rest should be at least 12 hours
+            (0, 0, _12h_interval)
         ]
 
         # 3. Weekly sum constraints on shifts days:
@@ -332,16 +354,16 @@ class MonthlyShiftScheduling:
         #     for d in range(num_days):
         #         model.AddExactlyOne(work[e, s, d] for s in range(num_shifts))
 
-        # Exactly 9h per day
-        # and at least 1 hr of breaks
-        for e in range(self.num_employees):
-            for d in range(self.num_days):
-                #todo: generalize as daily_sum_costraints
-                temp_working = [work[e, d, i, 1, 0] for i in range(self.num_intervals_per_day)]
-                temp_breaks = [work[e, d, i, 1, 1] for i in range(self.num_intervals_per_day)]
-
-                model.Add(sum(temp_working) == _9h_interval)
-                model.Add(sum(temp_breaks) >= _1h_interval)
+        # Exactly 9h per day and at least 1 hr of breaks
+        # This is not needed because sequance constraints are applied
+        # for e in range(self.num_employees):
+        #     for d in range(self.num_days):
+        #         #todo: generalize as daily_sum_costraints
+        #         temp_working = [work[e, d, i, 1, 0] for i in range(self.num_intervals_per_day)]
+        #         temp_breaks = [work[e, d, i, 1, 1] for i in range(self.num_intervals_per_day)]
+        #
+        #         model.Add(sum(temp_working) == _9h_interval)
+        #         model.Add(sum(temp_breaks) >= _1h_interval)
 
         # Fixed assignments.
         # for e, s, d in fixed_assignments:
@@ -379,10 +401,22 @@ class MonthlyShiftScheduling:
                 variables, coeffs = add_soft_sequence_constraint(
                     model, works,
                     hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
-                    f'shift_constraint(employee {e}, day {d}, shape_type {shape_type}, work_type {work_type})')
+                    f'shift_constraint(employee {e}, shape_type {shape_type}, work_type {work_type})')
 
                 obj_bool_vars.extend(variables)
                 obj_bool_coeffs.extend(coeffs)
+
+        # Minimum length constraints on flattern intervals
+        for ct in min_lenght_constrains:
+            shape_type, work_type, hard_min = ct
+            virtual_sequence = [model.NewConstant(True) for _ in range(hard_min)]
+            for e in range(self.num_employees):
+                works = [work[e, d, i, shape_type, work_type] for d in range(self.num_days) for i in
+                         range(self.num_intervals_per_day)]
+
+                all = virtual_sequence + works + virtual_sequence
+                add_min_sequence_length_constraint(model, all, hard_min)
+
 
 
         # Weekly sum constraints
