@@ -289,12 +289,11 @@ class MonthlyShiftScheduling:
 
         # 4. Penalized transitions:
         #     (previous_shift, next_shift, penalty (0 means forbidden))
-        # penalized_transitions = [
-        #     # Afternoon to night has a penalty of 4.
-        #     (2, 3, 4),
-        #     # Night to morning is forbidden.
-        #     (3, 1, 0),
-        # ]
+        penalized_transitions = [
+            # 9h to 12h is forbidden to morning is forbidden.
+            (1, 2, 0),
+            (2, 1, 0),
+        ]
 
         # daily demands for work shifts (morning, afternon, night) for each day
         # of the week starting on Monday.
@@ -405,22 +404,24 @@ class MonthlyShiftScheduling:
                     obj_int_coeffs.extend(coeffs)
 
         # Penalized transitions
-        # for previous_shift, next_shift, cost in penalized_transitions:
-        #     for e in range(num_employees):
-        #         for d in range(num_days - 1):
-        #             transition = [
-        #                 work[e, previous_shift, d].Not(), work[e, next_shift,
-        #                                                        d + 1].Not()
-        #             ]
-        #             if cost == 0:
-        #                 model.AddBoolOr(transition)
-        #             else:
-        #                 trans_var = model.NewBoolVar(
-        #                     'transition (employee=%i, day=%i)' % (e, d))
-        #                 transition.append(trans_var)
-        #                 model.AddBoolOr(transition)
-        #                 obj_bool_vars.append(trans_var)
-        #                 obj_bool_coeffs.append(cost)
+        for previous_shift, next_shift, cost in penalized_transitions:
+            for e in range(self.num_employees):
+                for d in range(self.num_days):
+                    for i in range(self.num_intervals_per_day - 1):
+                        transition = [
+                            work[e, d, i, previous_shift, 0].Not(),
+                            work[e, d, i+1, next_shift, 0].Not()
+                        ]
+
+                        if cost == 0:
+                            model.AddBoolOr(transition)
+                        else:
+                            trans_var = model.NewBoolVar(
+                                f'transition (employee={e}, day={d}, intertval={i}, previous={previous_shift}, next={next_shift})')
+                            transition.append(trans_var)
+                            model.AddBoolOr(transition)
+                            obj_bool_vars.append(trans_var)
+                            obj_bool_coeffs.append(cost)
 
         # if Employee is resting -> should consider work this time
         # otherwise rest dimension & work dimension would mix
