@@ -99,7 +99,7 @@ def test_oom_1_month_350employees():
     model.solve()
 
 
-def test_feasible_light_1_day():
+def test_1_day_3_employees():
     _days = 1
     _1d_intervals = int(24 * 60 / 15)
 
@@ -115,7 +115,7 @@ def test_feasible_light_1_day():
 
     model.solve()
 
-def test_nonfeasible_light_1_day():
+def test_nonfeasible_1_day():
     _days = 1
     _1d_intervals = int(24 * 60 / 15)
 
@@ -131,7 +131,7 @@ def test_nonfeasible_light_1_day():
 
     model.solve()
 
-def test_feasible_light_3_days():
+def test_3_days_3_emplyees():
     _days = 3
     _1d_intervals = int(24 * 60 / 15)
 
@@ -147,7 +147,7 @@ def test_feasible_light_3_days():
 
     model.solve()
 
-def test_feasible_light_6_days():
+def test_6_days_3_emplyees():
     _days = 6
     _1d_intervals = int(24 * 60 / 15)
 
@@ -163,7 +163,7 @@ def test_feasible_light_6_days():
 
     model.solve()
 
-def test_feasible_light_7_days():
+def test_7_days_6_employees():
     # starting from a week a new constraint to be applied - min/max working hours
     _days = 7
     _1d_intervals = int(24 * 60 / 15)
