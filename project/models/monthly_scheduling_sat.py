@@ -69,7 +69,7 @@ def add_soft_sequence_constraint(model, works, hard_min, soft_min, min_cost,
         for length in range(hard_min, soft_min):
             for start in range(len(works) - length + 1):
                 span = negated_bounded_span(works, start, length)
-                name = ': under_span(start=%i, length=%i)' % (start, length)
+                name = f': under_span({start}, {length})' #name = ': under_span(start=%i, length=%i)' % (start, length)
                 lit = model.NewBoolVar(prefix + name)
                 span.append(lit)
                 model.AddBoolOr(span)
@@ -83,7 +83,7 @@ def add_soft_sequence_constraint(model, works, hard_min, soft_min, min_cost,
         for length in range(soft_max + 1, hard_max + 1):
             for start in range(len(works) - length + 1):
                 span = negated_bounded_span(works, start, length)
-                name = ': over_span(start=%i, length=%i)' % (start, length)
+                name = f': over_span({start}, {length})' # name = ': over_span(start=%i, length=%i)' % (start, length)
                 lit = model.NewBoolVar(prefix + name)
                 span.append(lit)
                 model.AddBoolOr(span)
@@ -341,7 +341,7 @@ class MonthlyShiftScheduling:
                 for i in range(self.num_intervals_per_day):
                     for s in range(self.num_shapes):
                         for t in range(self.num_types):
-                            work[e, d, i, s, t] = model.NewBoolVar(f'work_e{e}_d{d}_i{i}_s{s}_t{t}')
+                            work[e, d, i, s, t] = model.NewBoolVar(f'work_{e}_{d}_{i}_{s}_{t}')
 
         # Linear terms of the objective in a minimization context.
         obj_int_vars = []
@@ -401,7 +401,7 @@ class MonthlyShiftScheduling:
                 variables, coeffs = add_soft_sequence_constraint(
                     model, works,
                     hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
-                    f'shift_constraint(employee {e}, shape_type {shape_type}, work_type {work_type})')
+                    f'sc_{e}_{shape_type}_{work_type})')
 
                 obj_bool_vars.extend(variables)
                 obj_bool_coeffs.extend(coeffs)
@@ -432,7 +432,8 @@ class MonthlyShiftScheduling:
                     variables, coeffs = add_soft_sum_constraint(
                         model, works,
                         hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
-                        f'weekly_sum_constraint(employee {e}, week {w}, shape_type {shape_type}, work_type {work_type})')
+                        f'wsc({e}, {w}, {shape_type}, {work_type})')
+                        #f'weekly_sum_constraint(employee {e}, week {w}, shape_type {shape_type}, work_type {work_type})')
 
                     obj_int_vars.extend(variables)
                     obj_int_coeffs.extend(coeffs)
@@ -451,7 +452,9 @@ class MonthlyShiftScheduling:
                             model.AddBoolOr(transition)
                         else:
                             trans_var = model.NewBoolVar(
-                                f'transition (employee={e}, day={d}, intertval={i}, previous={previous_shift}, next={next_shift})')
+                                f'tr ({e}, {d}, {i}, {previous_shift}, {next_shift})')
+                                #f'transition (employee={e}, day={d}, intertval={i}, previous={previous_shift}, next={next_shift})')
+
                             transition.append(trans_var)
                             model.AddBoolOr(transition)
                             obj_bool_vars.append(trans_var)
@@ -491,7 +494,8 @@ class MonthlyShiftScheduling:
                 breaks = [work[e, d, i, 1, 1] for e in range(self.num_employees)]
 
                 min_demand = self.intervals_demand[d * self.num_intervals_per_day + i]
-                worked = model.NewIntVar(min_demand, self.num_employees, f'demand (day {d}, interval {i})')
+                #worked = model.NewIntVar(min_demand, self.num_employees, f'demand (day {d}, interval {i})')
+                worked = model.NewIntVar(min_demand, self.num_employees, f'd ({d}, {i})')
                 model.Add(worked == (sum(works) - sum(breaks)))
 
         # Employee either is resting or is working
@@ -510,7 +514,10 @@ class MonthlyShiftScheduling:
         # Solve the model.
         solver = cp_model.CpSolver()
         solution_printer = cp_model.ObjectiveSolutionPrinter()
+        #todo: move solver params to properties
         solver.parameters.max_time_in_seconds = 3600.0
+        solver.parameters.num_workers = 16
+        solver.parameters.enumerate_all_solutions = False
 
         status = solver.Solve(model, solution_printer)
 
