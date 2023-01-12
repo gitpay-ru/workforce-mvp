@@ -13,3 +13,18 @@
 [2022-12-19 11:31:36,935: WARNING/ForkPoolWorker-7] Rostering started with 180 phantoms
 [2022-12-19 11:41:41,997: WARNING/ForkPoolWorker-7] Rostering status: OPTIMAL
 [2022-12-19 11:41:42,269: INFO/ForkPoolWorker-7] Task create_task[c8b8e9c9-d8e8-4c9d-8e90-7d418d5530ae] succeeded in 2381.0078102999996s: True
+[2023-01-12 16:26:15,113: INFO/MainProcess] Connected to redis://redis:6379/0
+[2023-01-12 16:26:15,121: INFO/MainProcess] mingle: searching for neighbors
+[2023-01-12 16:26:16,141: INFO/MainProcess] mingle: all alone
+[2023-01-12 16:26:16,157: INFO/MainProcess] celery@7920d0ca48fe ready.
+[2023-01-12 16:26:21,484: INFO/MainProcess] Events of group {task} enabled by remote.
+[2023-01-12 16:27:29,802: INFO/MainProcess] Connected to redis://redis:6379/0
+[2023-01-12 16:27:29,810: INFO/MainProcess] mingle: searching for neighbors
+[2023-01-12 16:27:30,828: INFO/MainProcess] mingle: all alone
+[2023-01-12 16:27:30,842: INFO/MainProcess] celery@7920d0ca48fe ready.
+[2023-01-12 16:27:31,483: INFO/MainProcess] Events of group {task} enabled by remote.
+[2023-01-12 16:28:43,456: INFO/MainProcess] Connected to redis://redis:6379/0
+[2023-01-12 16:28:43,464: INFO/MainProcess] mingle: searching for neighbors
+[2023-01-12 16:28:44,481: INFO/MainProcess] mingle: all alone
+[2023-01-12 16:28:44,494: INFO/MainProcess] celery@7920d0ca48fe ready.
+[2023-01-12 16:28:46,485: INFO/MainProcess] Events of group {task} enabled by remote.

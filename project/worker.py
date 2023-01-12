@@ -15,6 +15,7 @@ from celery import current_task
 from plotter import plot
 from pyworkforce.queuing import ErlangC
 from pyworkforce.utils.shift_spec import get_shift_coverage, get_shift_colors, decode_shift_spec
+from pyworkforce.staffing import MultiZonePlanner
 
 from datetime import datetime
 def get_datetime(t):
@@ -99,6 +100,15 @@ def create_task():#shift_names, num_resources, min_working_hours, max_resting):
     # 0. Load data
     shutil.copyfile("./tmp/data", f'./tmp/{current_task.request.id}')
     shutil.copyfile("./tmp/meta", f'./tmp/{current_task.request.id}_meta')
+
+    input_csv_path = './tmp/{current_task.request.id}'
+    input_meta_path = './tmp/{current_task.request.id}_meta'
+    output_dir = '..'
+    mzp = MultiZonePlanner(input_csv_path, input_meta_path, output_dir)
+    mzp.schedule()
+    mzp.roster()
+    mzp.roster_postprocess()
+    exit()
 
     with open(f'./tmp/{current_task.request.id}_meta', "r") as f:
         meta_info = json.load(f)
