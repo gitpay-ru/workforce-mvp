@@ -70,7 +70,8 @@ def add_soft_sequence_constraint(model, works, hard_min, soft_min, min_cost,
         for length in range(hard_min, soft_min):
             for start in range(len(works) - length + 1):
                 span = negated_bounded_span(works, start, length)
-                name = f': under_span({start}, {length})'
+                # name = f': under_span({start}, {length})'
+                name = ""
                 lit = model.NewBoolVar(prefix + name)
                 span.append(lit)
                 model.AddBoolOr(span)
@@ -84,7 +85,8 @@ def add_soft_sequence_constraint(model, works, hard_min, soft_min, min_cost,
         for length in range(soft_max + 1, hard_max + 1):
             for start in range(len(works) - length + 1):
                 span = negated_bounded_span(works, start, length)
-                name = f': over_span({start}, {length})'
+                # name = f': over_span({start}, {length})'
+                name = ""
                 lit = model.NewBoolVar(prefix + name)
                 span.append(lit)
                 model.AddBoolOr(span)
@@ -140,7 +142,8 @@ def add_soft_sum_constraint(model, works, hard_min, soft_min, min_cost,
         delta = model.NewIntVar(-len(works), len(works), '')
         model.Add(delta == soft_min - sum_var)
         # TODO(user): Compare efficiency with only excess >= soft_min - sum_var.
-        excess = model.NewIntVar(0, 7, prefix + ': under_sum')
+        # excess = model.NewIntVar(0, 7, prefix + ': under_sum')
+        excess = model.NewIntVar(0, 7, "")
         model.AddMaxEquality(excess, [delta, 0])
         cost_variables.append(excess)
         cost_coefficients.append(min_cost)
@@ -149,7 +152,8 @@ def add_soft_sum_constraint(model, works, hard_min, soft_min, min_cost,
     if soft_max < hard_max and max_cost > 0:
         delta = model.NewIntVar(-7, 7, '')
         model.Add(delta == sum_var - soft_max)
-        excess = model.NewIntVar(0, 7, prefix + ': over_sum')
+        # excess = model.NewIntVar(0, 7, prefix + ': over_sum')
+        excess = model.NewIntVar(0, 7, "")
         model.AddMaxEquality(excess, [delta, 0])
         cost_variables.append(excess)
         cost_coefficients.append(max_cost)
@@ -186,6 +190,8 @@ MAX_WORKING_HOURS = 9
 
 INTERVALS_PER_HOUR = 4
 
+NOT_ENOUGH_PENALTY = 1
+
 _shapes_resting = u'-'
 _shapes_9h_day = u'■'
 _shapes_12h_day = u'●'
@@ -201,6 +207,9 @@ def filter_none(arr: list):
 def replace_none_with_v(arr: list, v):
     return [v if x is None else x for x in arr]
 
+def is_overnight_shift(interval_start, interval_end):
+    return (interval_start < 24 * INTERVALS_PER_HOUR) and (interval_end >= 24 * INTERVALS_PER_HOUR)
+
 
 class MonthlyShiftScheduling:
     def __init__(self, num_employees: int,
@@ -210,6 +219,7 @@ class MonthlyShiftScheduling:
                  employee_requests: list = [],
                  employee_stop_list: list = [],
                  employee_shifts: dict = {},
+                 strict_mode = True,
                  *args, **kwargs):
         """
         The "optimal" criteria is defined as the number of resources per shift
@@ -254,28 +264,19 @@ class MonthlyShiftScheduling:
         self.employee_requests = employee_requests
         self.employee_stop_list = employee_stop_list
         self.employee_shifts = employee_shifts
+        self.strict_mode = strict_mode
 
         # Shift Availability:
         #       shape_type, start_interval, stop_interval
         self.shift_hours_availability = {
             # 9h daily can work 06:00-21:00
-            1: [
-                (6 * INTERVALS_PER_HOUR, 21 * INTERVALS_PER_HOUR)
-            ],
+            1: (6 * INTERVALS_PER_HOUR, 21 * INTERVALS_PER_HOUR),
             # 9h nightly works 21:00-07:00, to make it overnight - split into 2 joint intervals
-            3: [
-                (21 * INTERVALS_PER_HOUR, 24 * INTERVALS_PER_HOUR + 1),  # +1 - to include in range
-                (0 * INTERVALS_PER_HOUR, 7 * INTERVALS_PER_HOUR)
-            ],
+            3: (21 * INTERVALS_PER_HOUR, (24+7) * INTERVALS_PER_HOUR),  # +next day
             # 12h daily can work 06:00-22:00
-            2: [
-                (6 * INTERVALS_PER_HOUR, 22 * INTERVALS_PER_HOUR)
-            ],
+            2: (6 * INTERVALS_PER_HOUR, 22 * INTERVALS_PER_HOUR),
             # 12h night can work 18:00-10:00
-            4: [
-                (18 * INTERVALS_PER_HOUR, 24 * INTERVALS_PER_HOUR + 1),
-                (0 * INTERVALS_PER_HOUR, 10 * INTERVALS_PER_HOUR)
-            ],
+            4: (18 * INTERVALS_PER_HOUR, (24+10) * INTERVALS_PER_HOUR),
         }
 
         # we construct +/- virtual intervals in addition to real one
@@ -283,12 +284,9 @@ class MonthlyShiftScheduling:
         # w. virtual demand ->      00[ddddddddddddddddddddddddd...dddd]0000000000
         self.intervals_demand_with_virtual_ends = []
 
-        # lets consider 24h night shift as a filler
-        self.filler_shape_index = 4
-        filler_shift = self.shift_hours_availability[self.filler_shape_index]
-
-        left_filler = filler_shift[0][1] - filler_shift[0][0] - 1  # this is a first half on nightly interval - 1
-        right_filler = filler_shift[1][1] - filler_shift[1][0]
+        # 1 day before + 1 day after of real intervals
+        left_filler = 24*INTERVALS_PER_HOUR
+        right_filler = 24*INTERVALS_PER_HOUR
 
         for _ in range(left_filler):
             self.intervals_demand_with_virtual_ends.append(0)  # no demand prior the month
@@ -310,6 +308,8 @@ class MonthlyShiftScheduling:
     def solve(self):
 
         """Solves the shift scheduling problem."""
+
+        print("Model building...")
 
 
         # Request: (employee, day, interval, weight)
@@ -423,10 +423,45 @@ class MonthlyShiftScheduling:
 
         # 6. Employee supported schemas.
         # if not constrained on input -> Employee can work any shift
-        _full_range_of_shapes = [s for s in range(self.num_shapes)]
+        #                                (rest is excluded as it is being processed separately)
+        _full_range_of_shapes_without_rest = [s for s in range(1, self.num_shapes)]
         for e in range(self.num_employees):
             if e not in self.employee_shifts:
-                self.employee_shifts[e] = _full_range_of_shapes
+                self.employee_shifts[e] = _full_range_of_shapes_without_rest
+
+        # 7. Employee shifts presence
+        # will be using this data to validate sequences in that ranges instead of flattering
+        #       (employee, sahpe_type, shift_start_index, shift_end_index)
+        employee_shift_presence = []
+        for e in self.employee_shifts:
+            # rest is for everybody - including virtual fillers,
+            # because non-workers should have virtual rest prev/next days
+            employee_shift_presence.append(
+                (e, 0, 0, len(self.intervals_demand_with_virtual_ends))
+            )
+
+            for s in self.employee_shifts[e]:
+
+                if s in self.shift_hours_availability:
+                    (start_interval, end_interval) = self.shift_hours_availability[s]
+                    for d in range(self.num_days):
+                        day_start_index = self.intervals_start_index + d*self.num_intervals_per_day
+
+                        employee_shift_presence.append(
+                            (e, s, day_start_index + start_interval, day_start_index + end_interval)
+                            # max - if next day to the right
+                        )
+
+                    if is_overnight_shift(start_interval, end_interval):
+                        # add a virtual shift for previous day, next day was added above
+                        employee_shift_presence.append(
+                            (e, s, 0 + start_interval, 0 + end_interval)
+                        )
+
+                # else:
+                #     employee_shift_presence.append(
+                #         (e, s, self.intervals_start_index, self.intervals_end_index)
+                #     )
 
         # Having all the Matrix of variables (BoolVars) coudl lead to performance problems
         # an idea is to have a sparse matrix of only neede variables
@@ -434,48 +469,31 @@ class MonthlyShiftScheduling:
         # other way is to replace BoolVar later with Const or add conatraint
         # wouldn't like to do that because of size and complexity of future model
 
-        # by default we consider nothing is a Variable
-        _works_bool_needed = defaultdict(lambda: False)
-        for e in range(self.num_employees):
-            # rest is allowed for everybody, even for virtual fillers
-            for di in range(len(self.intervals_demand_with_virtual_ends)):
-                _works_bool_needed[e, di, 0] = True
-
-        for e in self.employee_shifts:
-            for s in self.employee_shifts[e]:
-                if s in self.shift_hours_availability:
-                    for d in range(self.num_days):
-                        day_start_index = self.intervals_start_index + d*self.num_intervals_per_day
-                        for (start_interval, end_interval) in self.shift_hours_availability[s]:
-                            for di in range(day_start_index + start_interval, day_start_index + end_interval):
-                                _works_bool_needed[e, di, s] = True
-
-                    if s == self.filler_shape_index:
-                        # virtual fillers are only available for appropriate workers
-                        for di in range(0, self.intervals_start_index):
-                            _works_bool_needed[e, di, s] = True
-                            # virtual right filler
-                        for di in range(self.intervals_end_index, len(self.intervals_demand_with_virtual_ends)):
-                            _works_bool_needed[e, di, s] = True
-
-                else:
-                    for di in range(self.intervals_start_index, self.intervals_end_index):
-                        # here we really would need BoolVars, others are constant
-                        _works_bool_needed[e, di, s] = True
-
         model = cp_model.CpModel()
 
         _CONSTANT_FALSE_ = model.NewConstant(False)
 
-        # work: employees * (days * intervals_per_day) * shape_type
+        # # work: employees * (days * intervals_per_day) * shape_type
+        # work = {}
+        # for e in range(self.num_employees):
+        #     for di in range(len(self.intervals_demand_with_virtual_ends)):
+        #         for s in range(self.num_shapes):
+        #             work[e, di, s] = model.NewBoolVar(f'work_{e}_{di}_{s}')
+
+        # work = defaultdict(lambda: _CONSTANT_FALSE_)
+        # use general dictionaries to control over bounds for keys, just to be on a safe side
         work = {}
+        # create Work matrix -- by default we consider nothing is a Variable
         for e in range(self.num_employees):
             for di in range(len(self.intervals_demand_with_virtual_ends)):
                 for s in range(self.num_shapes):
-                    if _works_bool_needed[e, di, s]:
-                        work[e, di, s] = model.NewBoolVar(f'work_{e}_{di}_{s}')
-                    else:
-                        work[e, di, s] = _CONSTANT_FALSE_
+                    work[e, di, s] = None
+
+        for ct in employee_shift_presence:
+            (e, s, interval_start, interval_end) = ct
+            for di in range(interval_start, interval_end):
+                # work[e, di, s] = model.NewBoolVar(f'work_{e}_{di}_{s}')
+                work[e, di, s] = model.NewBoolVar("")
 
         # Linear terms of the objective in a minimization context.
         obj_int_vars = []
@@ -523,17 +541,31 @@ class MonthlyShiftScheduling:
         # Shift sequence constraints -- flattern all intervals
         for ct in shift_constraints:
             shape_type, hard_min, soft_min, min_cost, soft_max, hard_max, max_cost = ct
-            for e in range(self.num_employees):
+
+            for (e, s, interval_start, interval_end) in employee_shift_presence:
+                if s != shape_type:
+                    continue
+
                 # locate sequences even with virtual fillers
-                works = [work[e, di, shape_type] for di in range(len(self.intervals_demand_with_virtual_ends))]
+                works = [work[e, di, shape_type] for di in range(interval_start, interval_end)]
+
+                # it might be there is no any intervals per employee*shift at all -> skip it then
+                # if len(filter_none(works)) == 0:
+                #     continue
+
+                # variables, coeffs = add_soft_sequence_constraint(
+                #     model, works,
+                #     hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
+                #     f'sc ({e}_{shape_type})')
 
                 variables, coeffs = add_soft_sequence_constraint(
                     model, works,
                     hard_min, soft_min, min_cost, soft_max, hard_max, max_cost,
-                    f'sc ({e}_{shape_type})')
+                    "")
 
                 obj_bool_vars.extend(variables)
                 obj_bool_coeffs.extend(coeffs)
+
 
         # Minimum length constraints on flattern intervals
         for ct in min_length_constrains:
@@ -573,29 +605,31 @@ class MonthlyShiftScheduling:
                     start_index = self.intervals_start_index + w*7*self.num_intervals_per_day
                     end_index = min(start_index + 7*self.num_intervals_per_day, self.num_days*self.num_intervals_per_day)
                     works = [work[e, di, shape_type] for di in range(start_index, end_index)]
+                    works_filtered = filter_none(works)  #remove None-s
 
-                    model.Add(sum(works) <= sum_max)
+                    model.Add(sum(works_filtered) <= sum_max)
 
         # Penalized transitions
-        for previous_shift, next_shift, cost in penalized_transitions:
-            for e in range(self.num_employees):
-                #ignore virtual fillers, traverse though real intervals only
-                for di in range(self.intervals_start_index, self.intervals_end_index - 1):
-                    transition = [
-                        work[e, di, previous_shift].Not(),
-                        work[e, di+1, next_shift].Not()
-                    ]
-
-                    if cost == 0:
-                        model.AddBoolOr(transition)
-                    else:
-                        trans_var = model.NewBoolVar(
-                            f'transition ({e}, {di}, {previous_shift}, {next_shift})')
-
-                        transition.append(trans_var)
-                        model.AddBoolOr(transition)
-                        obj_bool_vars.append(trans_var)
-                        obj_bool_coeffs.append(cost)
+        # for previous_shift, next_shift, cost in penalized_transitions:
+        #     for e in range(self.num_employees):
+        #         #ignore virtual fillers, traverse though real intervals only
+        #         for di in range(self.intervals_start_index, self.intervals_end_index - 1):
+        #             transition = [
+        #                 work[e, di, previous_shift].Not(),
+        #                 work[e, di+1, next_shift].Not()
+        #             ]
+        #
+        #             if cost == 0:
+        #                 model.AddBoolOr(transition)
+        #             else:
+        #                 # trans_var = model.NewBoolVar(
+        #                 #     f'transition ({e}, {di}, {previous_shift}, {next_shift})')
+        #                 trans_var = model.NewBoolVar("")
+        #
+        #                 transition.append(trans_var)
+        #                 model.AddBoolOr(transition)
+        #                 obj_bool_vars.append(trans_var)
+        #                 obj_bool_coeffs.append(cost)
 
         # Cover constraints
         # for s in range(1, num_shifts):
@@ -620,12 +654,23 @@ class MonthlyShiftScheduling:
         # for virtual fillers there is a simple constraint >=0
         for di in range(len(self.intervals_demand_with_virtual_ends)):
             works = [work[e, di, s] for e in range(self.num_employees) for s in range(1, self.num_shapes)]
+            works_filtered = filter_none(works)  #remove None-s
 
             min_demand = self.intervals_demand_with_virtual_ends[di]
-            #worked = model.NewIntVar(min_demand, self.num_employees, f'demand ({di})')
-            #model.Add(worked == (sum(works)))
-            model.Add(sum(works) >= min_demand) # 10% faster, but has more conflicts & branches
-            # todo: validate performance -- sum(works) >= min_demand
+
+            if self.strict_mode:
+                worked = model.NewIntVar(min_demand, self.num_employees, f'demand ({di})')
+                model.Add(worked == (sum(works_filtered)))
+                #model.Add(sum(works_filtered) == min_demand) # 10% faster, but has more conflicts & branches
+                # todo: validate performance -- sum(works) >= min_demand
+            else:
+                worked = model.NewIntVar(0, self.num_employees, f'demand ({di})')
+                model.Add(worked == (sum(works_filtered)))
+                excess = model.NewIntVar(0, min_demand, '')
+                model.Add(excess == min_demand - worked)
+                obj_int_vars.append(excess)
+                obj_int_coeffs.append(NOT_ENOUGH_PENALTY)
+
 
         # Employee either is resting or is working
         for e in range(self.num_employees):
@@ -633,7 +678,8 @@ class MonthlyShiftScheduling:
             # because it could affect start intervals arrangements
             for di in range(len(self.intervals_demand_with_virtual_ends)):
                 works = [work[e, di, s] for s in range(self.num_shapes)]
-                model.AddExactlyOne(works)
+                works_filtered = filter_none(works)  #remove None-s
+                model.AddExactlyOne(works_filtered)
 
         # Objective
         model.Minimize(
@@ -641,9 +687,23 @@ class MonthlyShiftScheduling:
             sum(obj_int_vars[i] * obj_int_coeffs[i] for i in range(len(obj_int_vars)))
         )
 
+        print(f'Model bool vars: {len(obj_bool_vars)}')
+        print(f'Model int vars: {len(obj_int_vars)}')
+
+        print("Solving started...")
+
         # Solve the model.
         solver = cp_model.CpSolver()
         solution_printer = cp_model.ObjectiveSolutionPrinter()
+
+        # solver.parameters.log_to_response = False
+        # solver.parameters.log_to_stdout = True
+        # solver.parameters.keep_all_feasible_solutions_in_presolve = False
+        # solver.parameters.solution_pool_size = 1
+        # solver.parameters.fill_additional_solutions_in_response = False
+        # solver.parameters.fill_tightened_domains_in_response = False
+        # solver.parameters.enumerate_all_solutions = False
+        solver.parameters.max_time_in_seconds = 300
 
         status = solver.Solve(model, solution_printer)
 
@@ -672,6 +732,8 @@ class MonthlyShiftScheduling:
                 for di in range(self.intervals_start_index, self.intervals_end_index):
                     shape_found = _shapes_unknown
                     for s in range(self.num_shapes):
+                        if work[e, di, s] is None:
+                            continue  # this is not a variable, just skip it
                         if solver.BooleanValue(work[e, di, s]):
                             shape_found = self.shapes[s]
                             break

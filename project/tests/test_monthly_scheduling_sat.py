@@ -137,7 +137,34 @@ def test_7_days_6_employees_9h_12h_shifts():
             1: [3],  # 9h night
             2: [2],  # 12h day
             3: [4],  # 12h night
+            4: [2],  # 12h day
+            5: [4],  # 12h night
         }
+    )
+
+    model.solve()
+
+def test_7_days_6_employees_9h_12h_shifts_not_enough():
+    # starting from a week a new constraint to be applied - min/max working hours
+    _days = 7
+    _1d_intervals = int(24 * 60 / 15)
+
+    model = MonthlyShiftScheduling(
+        num_employees=6,
+        num_intervals=_1d_intervals * _days,
+        intervals_demand=[3 for _ in range(_1d_intervals * _days)],
+        fixed_assignments=[],
+        employee_requests=[],
+        employee_stop_list=[],
+        employee_shifts={
+            0: [1],  # 9h day
+            1: [3],  # 9h night
+            2: [2],  # 12h day
+            3: [4],  # 12h night
+            4: [2],  # 12h day
+            5: [4],  # 12h night
+        },
+        strict_mode=False
     )
 
     model.solve()
