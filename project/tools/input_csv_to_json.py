@@ -42,7 +42,7 @@ known_breaks = {
 #   (duration, start_from, start_to, step_time, breaks, breaks_min_interval, breaks_max_interval)
 known_shifts = {
     '9часов день': ('09:00', '06:00', '13:00', '00:15',
-                    ['9 часов день обед 1', '9 часов день перерыв 1', '9 часов день перерыв 2'], '01:30', '03:30'),
+                    ['9 часов день обед', '9 часов день перерыв 1', '9 часов день перерыв 2'], '01:30', '03:30'),
 
     '9часов ночь': ('09:00', '21:00', '22:00', '00:15',
                     ['9 часов ночь обед', '9 часов ночь перерыв 1', '9 часов ночь перерыв 2', '9 часов ночь перерыв 3 личн'], '01:30', '03:30'),
@@ -98,6 +98,12 @@ def build_shifts():
 
     for shift_id, shift_context in known_shifts.items():
         (duration, start_from, start_to, step_time, breaks, breaks_min_interval, breaks_max_interval) = shift_context
+
+        for b in breaks:
+            if b not in known_breaks:
+                print(f'Unkown activity: {b}')
+                break;
+
         shifts.append(
             {
                 "id": shift_id,
