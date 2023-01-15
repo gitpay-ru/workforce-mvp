@@ -8,5 +8,6 @@ redis==3.5.3
 requests==2.25.1
 uvicorn==0.13.4
 python-multipart==0.0.5
-pyworkforce @ git+https://github.com/gitpay-ru/pyworkforce.git@v0.5.4
+pyworkforce @ git+https://github.com/gitpay-ru/pyworkforce.git@6fcb167b6228670566da599a4ff56df292b7b940
 matplotlib==3.6.2
+StrEnum~=0.4.9
