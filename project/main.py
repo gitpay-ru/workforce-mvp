@@ -75,8 +75,8 @@ def get_schedule_result(id):
 #     }
 #     return JSONResponse(result)
 
-def iterfile(id):
-    with open(f"./tmp/{id}", mode="rb") as file_like:
+def iterfile(path):
+    with open(path, mode="rb") as file_like:
         yield from file_like
 
 # @app.get("/scheduling/{id}/result")
