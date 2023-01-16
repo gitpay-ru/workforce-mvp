@@ -111,12 +111,8 @@ def create_task():
     with open(input_meta_path, 'r', encoding='utf-8') as f:
         meta = json.load(f)
 
-    # print(df)
-
     mzp = MultiZonePlanner(df, meta, output_dir)
-    mzp.schedule()
-    mzp.roster()
-    mzp.roster_postprocess()
+    mzp.solve()
 
     return True
 
