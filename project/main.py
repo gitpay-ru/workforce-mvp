@@ -7,9 +7,10 @@ from fastapi.templating import Jinja2Templates
 from celery import current_task
 from fastapi.responses import StreamingResponse
 from fastapi.encoders import jsonable_encoder
+from celery.task.control import revoke
 from pathlib import Path
 
-from worker import create_task
+from worker import create_task, terminate_task
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -67,3 +68,10 @@ def get_stats_result(id):
         return JSONResponse(status_code=404)
     return StreamingResponse(iterfile(f'./tmp/{id}/statistics_output.json'), media_type="application/octet-stream")
 
+@app.get("/task/{id}/cancel")
+def cancel_task(id):
+    if not task_exists(id):
+        return JSONResponse(status_code=404)
+
+    terminate_task.delay(id)
+    return JSONResponse({"id": id})
