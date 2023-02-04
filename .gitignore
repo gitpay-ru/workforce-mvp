@@ -1,4 +1,5 @@
 *.pyc
 __pycache
 .DS_Store
-/project/logs/
+/project/logs/*
+tmp/*

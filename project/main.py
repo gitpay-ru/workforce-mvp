@@ -5,12 +5,26 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.responses import StreamingResponse
 from pathlib import Path
+import pyworkforce as pw
+from version import __version__
 
 from worker import create_task, terminate_task
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
+
+@app.get('/health')
+def health():
+    return JSONResponse(status_code=200)
+
+@app.get('/version')
+def version():
+    result = {
+        'pyworkforce': pw.__version__,
+        'version': __version__
+    }
+    return JSONResponse(result)
 
 def iterfile(path):
     with open(path, mode="rb") as file_like:
