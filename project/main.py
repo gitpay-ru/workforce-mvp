@@ -71,7 +71,7 @@ def get_schedule_result(id):
 def get_stats_result(id):
     fpath = f'./tmp/{id}/statistics_output.json'
     if Path(fpath).exists():
-        return StreamingResponse(iterfile(), media_type="application/octet-stream")
+        return StreamingResponse(iterfile(fpath), media_type="application/octet-stream")
     else:
         return JSONResponse(status_code=404)
 
