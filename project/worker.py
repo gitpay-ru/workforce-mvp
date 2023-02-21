@@ -25,12 +25,15 @@ def create_task():
 
     input_csv_path = f'./tmp/{current_task.request.id}/input'
     input_meta_path = f'./tmp/{current_task.request.id}/meta'
+    solver_profile_path = f'./tmp/{current_task.request.id}/profile'
 
     df = pd.read_csv(input_csv_path, parse_dates=[0], index_col=0)
     with open(input_meta_path, 'r', encoding='utf-8') as f:
         meta = json.load(f)
+    with open(solver_profile_path, 'r', encoding='utf-8') as f:
+        profile = json.load(f)
 
-    mzp = MultiZonePlanner(df, meta, output_dir)
+    mzp = MultiZonePlanner(df, meta, profile, output_dir)
     mzp.solve()
 
     return True
