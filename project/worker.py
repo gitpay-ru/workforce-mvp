@@ -22,6 +22,7 @@ def create_task():
 
     shutil.copyfile("./tmp/data", f'./tmp/{current_task.request.id}/input')
     shutil.copyfile("./tmp/meta", f'./tmp/{current_task.request.id}/meta')
+    shutil.copyfile("./tmp/solver-profile", f'./tmp/{current_task.request.id}/profile')
 
     input_csv_path = f'./tmp/{current_task.request.id}/input'
     input_meta_path = f'./tmp/{current_task.request.id}/meta'
