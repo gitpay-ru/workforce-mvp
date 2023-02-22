@@ -33,13 +33,17 @@ def iterfile(path):
 @app.post("/task", status_code=201)
 def submit_task(
     data_file: UploadFile = File(...),
-    meta_file: UploadFile = File(...)
+    meta_file: UploadFile = File(...),
+    solver_profile_file: UploadFile = File(...)
 ):
     with open("./tmp/data", "wb") as f:
         f.write(data_file.file.read())
 
     with open("./tmp/meta", "wb") as f:
         f.write(meta_file.file.read())
+
+    with open("./tmp/solver-profile", "wb") as f:
+        f.write(solver_profile_file.file.read())
 
     task = create_task.delay()
     return JSONResponse({"id": task.id})
