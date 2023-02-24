@@ -6,7 +6,7 @@ st.set_page_config(
 )
 
 # sidebar
-st.sidebar.success("Start analysis by selecting subject above.")
+st.sidebar.success("Start analysis by selecting report above.")
 # just for testing - how metric are looked like
 m = st.sidebar.metric("Temperature", "70 °F", "1.2 °F")
 

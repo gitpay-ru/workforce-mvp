@@ -5,10 +5,26 @@ import json
 import datetime
 import plost
 
+st.set_page_config(
+    page_title="Schedule summary",
+    page_icon="📈",
+)
+
+st.header("Schedule summary")
+
+col1, col2, col3 = st.columns(3)
+
 st.write(
     """
-    This graph illustrates a combination of resource shifts & breaks assigned per worker.
-    You can use a fullscreen view to investigate results in details.
+    This graph illustrates a combination of resource shifts & breaks assigned per employee. 
+    for shifts and breaks the following rules are applied:
+     - shifts: min/max shifts per month
+     - shifts: min/max wordays & holdiays in row
+     - breaks: number of breaks per shift
+     - breaks: min/max start time per break
+     - min/max intervals between breaks
+     
+    You can use a full-screen view to investigate results in details.
     """
 )
 
@@ -25,8 +41,7 @@ if rostering_file is not None and meta_file is not None:
     meta = json.load(meta_file)
 
     num_employees = len(meta['employees'])
-    st.write(f'Total employees: {num_employees}')
-
+    col1.metric("Total Employees", num_employees)
 
     shifts_duration = {}
     for s in meta['shifts']:
@@ -39,12 +54,15 @@ if rostering_file is not None and meta_file is not None:
                            Start = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format),
                            Finish = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format) + shifts_duration[x['shiftId']],
                            Activity = x['shiftId'],
-                           width = 0.3)
+                           width = 0.4)
             , rostering['campainSchedule']
     )
 
     # breaks
     df_shifts = pd.DataFrame(shifts)
+
+    num_shifts = len(df_shifts)
+    col2.metric("Shifts scheduled", num_shifts)
 
     # breaks to dataframe
     breaks = []
@@ -72,10 +90,13 @@ if rostering_file is not None and meta_file is not None:
                      Start = activity_start,
                      Finish = activity_end,
                      Activity = activity_id,
-                     width = 0.5)
+                     width = 0.6)
             )
 
     df_breaks = pd.DataFrame(breaks)
+
+    num_breaks = len(df_breaks)
+    col3.metric("Breaks scheduled", num_breaks)
 
     df = pd.concat([df_shifts, df_breaks])
 
@@ -89,8 +110,9 @@ if rostering_file is not None and meta_file is not None:
         d.width = df[df['Activity'] == d.name]['width']
     # fig.update_xaxes(rangeslider_visible=True)
 
-    st.header('Shifts with activities')
+    st.subheader('Shifts with activities plot')
     st.plotly_chart(fig, use_container_width=True)
+    st.caption('Shifts with activities plot')
 
     status_text.markdown("**Done**")
 
