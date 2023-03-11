@@ -31,10 +31,10 @@ if statistics_file is not None:
     )
 
     # wrong Y axis - replace it with plotly graphs, because area chart shows propotion by default
-    st.area_chart(
-        data = df_stats,
-        x = "tc",
-        y = ["positions", "scheduled_positions"])
+    # st.area_chart(
+    #     data = df_stats,
+    #     x = "tc",
+    #     y = ["positions", "scheduled_positions"])
 
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Required positions'], name='Required positions', fill='tozeroy'))
