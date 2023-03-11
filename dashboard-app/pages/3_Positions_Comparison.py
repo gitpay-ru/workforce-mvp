@@ -1,5 +1,5 @@
 import json
-import plotly.express as px
+import plotly.graph_objects as go
 
 import streamlit as st
 import plost
@@ -30,15 +30,17 @@ if statistics_file is not None:
         """
     )
 
-    # wrong Y axis - replace it with plotly graphs
-    # st.area_chart(
-    #     data = df_stats,
-    #     x = "tc",
-    #     y = ["positions", "scheduled_positions"])
+    # wrong Y axis - replace it with plotly graphs, because area chart shows propotion by default
+    st.area_chart(
+        data = df_stats,
+        x = "tc",
+        y = ["positions", "scheduled_positions"])
 
-    fig = px.area(df_stats, x="tc", y=["Required positions", "Scheduled positions"])
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Required positions'], name='Required positions', fill='tozeroy'))
+    fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Scheduled positions'], name='Scheduled positions', fill='tozeroy'))
     fig.update_layout(legend=dict(orientation="h"))
     # fig.update_xaxes(rangeslider_visible=True)
 
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
