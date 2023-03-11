@@ -2,6 +2,13 @@ import streamlit as st
 import plost
 import pandas as pd
 
+st.subheader('Daily demand')
+st.write(
+    """
+    **Daily demand** shows corresponding values spreaded across the month. Mean values are aggregated into hours.
+    """
+)
+
 json_file = st.sidebar.file_uploader("Upload statistics .json file")
 if json_file is not None:
     # Can be used wherever a "file-like" object is accepted:
@@ -10,7 +17,7 @@ if json_file is not None:
 
     st.write(
         """
-        This graph shows corresponding values spreaded across the month. Mean values are aggregated into hours.
+        Start analysis by selecting one of the metrics to show:
         """
     )
 
