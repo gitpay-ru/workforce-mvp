@@ -55,8 +55,7 @@ def get_task_status(id):
         task_result = AsyncResult(id)
         result = {
             "id": id,
-            "status": task_result.status,
-            "result": task_result.result
+            "status": task_result.status
         }
         return JSONResponse(result)
     except:
