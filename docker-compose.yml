@@ -2,6 +2,14 @@ version: '3.3'
 
 services:
 
+  reports:
+    build: ./reports-app
+    ports:
+      - 8501:8501
+    command: streamlit run Main_Page.py
+    volumes:
+      - ./reports-app:/app
+
   web:
     build: ./project
     ports:

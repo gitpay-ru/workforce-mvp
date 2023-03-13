@@ -1,4 +1,4 @@
-# Dashboards
+# Reports
 
 This app provides a number of reports to investigate & illustrate workforce planning results.
 
