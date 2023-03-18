@@ -3,6 +3,8 @@ import json
 import csv
 import time
 import pandas as pd
+from datetime import datetime
+from datetime import timedelta
 
 with open(f'.//_data_file_imp.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
@@ -28,6 +30,21 @@ id = (res.json()['id'])
 response = requests.get(f'http://31.133.120.7:8004/task/{id}/result')
 print(response.json())
 
+shifts_duration = {}
+for s in meta['shifts']:
+    shifts_duration[s['id']] = datetime.timedelta(minutes= int(s['duration'][:-3]) * 60+ int(s['duration'][-2:]))
+
+print(shifts_duration)
+
+
+format = '%d.%m.%y %H:%M'
+shifts = map(
+        lambda x: dict(Task = str(x['employeeId']),
+                       Start = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format),
+                       Finish = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format) + shifts_duration[x['shiftId']],
+                       Resource = x['shiftId'])
+        , response.json()["campainSchedule"]
+)
 
 df = pd.read_json('./rostering.json')
 df.info()
