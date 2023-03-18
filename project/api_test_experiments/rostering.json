@@ -1,0 +1,555 @@
+{
+  "campainUtc": 3,
+  "campainSchedule": [
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "01.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "15:30",
+          "activityTimeEnd": "15:45"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:45"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "19:45",
+          "activityTimeEnd": "20:00"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "02.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "03.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "04.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "06.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "07.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "08.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "09.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "10.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "12.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "13.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "15.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "16.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "17.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "18.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "19.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "21.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "22.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "23.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "24.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "25.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    },
+    {
+      "employeeId": "0006aabe-0ba4-7a35-c0b0-bf6596f85159",
+      "employeeUtc": 3,
+      "schemaId": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "shiftDate": "28.03.23",
+      "shiftTimeStart": "11:45",
+      "activities": [
+        {
+          "activityId": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+          "activityTimeStart": "12:45",
+          "activityTimeEnd": "13:00"
+        },
+        {
+          "activityId": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+          "activityTimeStart": "14:45",
+          "activityTimeEnd": "15:15"
+        },
+        {
+          "activityId": "0ec194a4-4ade-431b-b917-290514635561",
+          "activityTimeStart": "17:15",
+          "activityTimeEnd": "17:30"
+        }
+      ]
+    }
+  ]
+}
