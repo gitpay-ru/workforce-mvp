@@ -11,8 +11,8 @@ from version import __version__
 from worker import create_task, terminate_task
 
 app = FastAPI()
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+# templates = Jinja2Templates(directory="templates")
 
 @app.get('/health')
 def health():

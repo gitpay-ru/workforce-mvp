@@ -28,23 +28,36 @@ time.sleep(8)
 
 id = (res.json()['id'])
 response = requests.get(f'http://31.133.120.7:8004/task/{id}/result')
-print(response.json())
+# print(response.json())
 
 shifts_duration = {}
 for s in meta['shifts']:
-    shifts_duration[s['id']] = datetime.timedelta(minutes= int(s['duration'][:-3]) * 60+ int(s['duration'][-2:]))
+    shifts_duration[s['id']] = timedelta(minutes= int(s['duration'][:-3]) * 60+ int(s['duration'][-2:]))
 
 print(shifts_duration)
 
 
 format = '%d.%m.%y %H:%M'
 shifts = map(
-        lambda x: dict(Task = str(x['employeeId']),
-                       Start = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format),
-                       Finish = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format) + shifts_duration[x['shiftId']],
-                       Resource = x['shiftId'])
+        lambda x: dict(Employee = str(x['employeeId']),
+                       StartDateTime = datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format),
+                       FinishDateTeme = datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format) + shifts_duration[x['shiftId']],
+                       Shift = x['shiftId'])
         , response.json()["campainSchedule"]
 )
 
-df = pd.read_json('./rostering.json')
-df.info()
+# for i in shifts:
+#     print(i)
+
+expected_time = 9 * 22 # 198
+
+
+actual_time = len(list(shifts)) * 9 
+print(actual_time)
+
+
+assert len(actual_time) == len(expected_time)
+
+
+# df = pd.read_json('./rostering.json')
+# df.info()
