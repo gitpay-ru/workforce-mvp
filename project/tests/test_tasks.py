@@ -3,7 +3,7 @@ import json
 from unittest.mock import patch, call
 
 from worker import create_task
-
+import pandas as pd
 
 # def test_home(test_app):
 #     response = test_app.get("/")
@@ -16,6 +16,13 @@ def test_task():
 #     assert create_task.run(2)
 #     assert create_task.run(3)
 
+def test_pandas():
+    df = pd.read_json('./rostering.json')
+    # edf['schema'] = edf.apply(lambda t: t['schemas'][0], axis=1)
+    # json.loads(employee_string)
+    # ['campainSchedule']['employeeId']
+    df['employeeId'] = df.apply(lambda t: t['campainSchedule']['employeeId'], axis=1)
+    print(df, df.describe())
 
 # @patch("worker.create_task.run")
 # def test_mock_task(mock_run):
