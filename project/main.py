@@ -53,6 +53,10 @@ def submit_task(
 def get_task_status(id):
     try:
         task_result = AsyncResult(id)
+
+        if(task_result.status == 'PENDING'):
+            return JSONResponse(status_code=404)
+
         result = {
             "id": id,
             "status": task_result.status
