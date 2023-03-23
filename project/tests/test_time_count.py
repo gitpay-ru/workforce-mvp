@@ -5,7 +5,10 @@ import csv
 import time
 from datetime import datetime
 from datetime import timedelta
+import os
+from dotenv import load_dotenv, find_dotenv
 
+load_dotenv(find_dotenv())
 
 with open(f'.//_data_file_imp.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
@@ -23,12 +26,12 @@ files = {
     "solver_profile_file": open('_solver_profile_file.json', 'rb')
 }
 
-res = requests.post(f'http://31.133.120.7:8004/task', files=files)
+res = requests.post(os.getenv('urlpost'), files=files)
 print(res.json()['id'])
 time.sleep(8)
 
 id = (res.json()['id'])
-response = requests.get(f'http://31.133.120.7:8004/task/{id}/result')
+response = requests.get(os.getenv('urlget'))
 
 
 shifts_duration = {}
