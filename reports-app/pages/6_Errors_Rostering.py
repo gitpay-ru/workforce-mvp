@@ -149,7 +149,7 @@ def get_timedelta(duration: str) -> datetime.timedelta:
 
 
 @st.cache_data
-def get_errors_min_max_days(rostering, meta_employees, meta_shifts):
+def get_errors_min_max_days(rostering, meta_employees, meta_shifts, meta_schemas):
     # (employee_id, error_text, expected, actual)
     errors = []
 
@@ -178,25 +178,42 @@ def get_errors_min_max_days(rostering, meta_employees, meta_shifts):
             (dt_shift_time_start, dt_shift_time_end)
         )
 
-    # check 12h interval between shifts
+
     _12h_delta = get_timedelta("12:00")
     for employee_id, employee_schedule in employee_schedule.items():
 
+        # just sort days ascending
         employee_schedule = sorted(employee_schedule)
+
+        employee_schema_id = meta_employees[employee_id]['schema_id']
+        employee_max_resting_days = meta_schemas[employee_schema_id]['holidays_max_days']
 
         # go over the adjacent pairs of days
         for prev_day, curr_day in zip(employee_schedule, employee_schedule[1:]):
             (prev_start, prev_end) = prev_day
             (curr_start, curr_end) = curr_day
 
+            # validate 12h interval between shifts
             rest_delta = curr_start - prev_end
-
             if rest_delta < _12h_delta:
-                errors.append(
-                    (employee_id, "Less then 12h between shift",
-                     f'min time: {_12h_delta}',
-                     f'real: {rest_delta}\n({prev_start} - {prev_end}), ({curr_start} - {curr_end})')
-                )
+                errors.append((
+                    employee_id,
+                    "Less then 12h between shift",
+                    f"min time: {_12h_delta}",
+                    f"real: {rest_delta}\n({prev_start} - {prev_end}), ({curr_start} - {curr_end})"
+                ))
+
+            # validate max resting days between
+            # excluding working days, just pure days between: e.g. 9 mar - 13 mar = 3 days of resting (10, 11, 12 mar)
+            days_between = curr_start.day - prev_end.day - 1
+            if days_between > employee_max_resting_days:
+                errors.append((
+                    employee_id,
+                    "Max resting days exceeded",
+                    f"max resting days: {employee_max_resting_days}",
+                    f"real: {days_between}\n({prev_start} - {prev_end}), ({curr_start} - {curr_end})"
+                ))
+
 
     return errors
 
@@ -222,7 +239,7 @@ if rostering_file is not None and meta_file is not None:
 
     # (employee_id, error_text, expected, actual)
     errors = get_errors(rostering, meta_employees)
-    errors = errors + get_errors_min_max_days(rostering, meta_employees, meta_shifts)
+    errors = errors + get_errors_min_max_days(rostering, meta_employees, meta_shifts, meta_schemas)
     df_errors = pd.DataFrame(errors, columns=['Employee Id', 'Error Type', 'Expected', 'Actual'])
     df_errors = df_errors.drop_duplicates()
 
