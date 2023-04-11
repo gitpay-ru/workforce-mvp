@@ -1,3 +1,5 @@
+from collections import defaultdict
+
 import pandas
 import streamlit as st
 import plotly.express as px
@@ -20,7 +22,11 @@ def get_meta_schemas(meta):
 
         meta_schemas[schemas_id] = dict(
             shifts_count=len(s['shifts']),
-            shift_id=s['shifts'][0]['shiftId']
+            shift_id=s['shifts'][0]['shiftId'],
+            holidays_min_days=s['holidays']['minDaysInRow'],
+            holidays_max_days=s['holidays']['maxDaysInRow'],
+            shifts_min_days=s['shifts'][0]['minDaysInRow'],
+            shifts_max_days=s['shifts'][0]['maxDaysInRow']
         )
 
     return meta_schemas
@@ -34,7 +40,8 @@ def get_meta_shifts(meta):
         meta_shifts[shift_id] = dict(
             activities_count=len(s['activities']),
             time_start=s['scheduleTimeStart'],
-            time_start_end=s['scheduleTimeEndStart']
+            time_start_end=s['scheduleTimeEndStart'],
+            duration=s['duration'],
         )
 
     return meta_shifts
@@ -76,7 +83,7 @@ def get_meta_employees(meta, meta_schemas, meta_shifts):
 
 
 @st.cache_data
-def get_errors_df(rostering, meta_employees, ):
+def get_errors(rostering, meta_employees, ):
     # (employee_id, error_text, expected, actual)
     errors = []
 
@@ -130,11 +137,68 @@ def get_errors_df(rostering, meta_employees, ):
             ('', 'Wrong employees number', meta_count, rostering_count)
         )
 
+    return errors
 
-    df_errors = pd.DataFrame(errors, columns=['Employee Id', 'Error Type', 'Expected', 'Actual'])
-    df_errors = df_errors.drop_duplicates()
 
-    return df_errors
+@st.cache_data
+def get_timedelta(duration: str) -> datetime.timedelta:
+    (hh, mm) = hh_mm(duration)
+    delta = datetime.timedelta(hours=hh, minutes=mm)
+
+    return delta
+
+
+@st.cache_data
+def get_errors_min_max_days(rostering, meta_employees, meta_shifts):
+    # (employee_id, error_text, expected, actual)
+    errors = []
+
+    employee_schedule = defaultdict(lambda: [])
+
+    for s in rostering['campainSchedule']:
+
+        employee_id = s['employeeId']
+
+        e = meta_employees[employee_id]
+
+        employee_shift = s['shiftId']
+        employee_schema = s['schemaId']
+        employee_utc = s['employeeUtc']
+        employee_tz = datetime.timezone(datetime.timedelta(hours=employee_utc))
+        delta = get_timedelta(meta_shifts[employee_shift]['duration'])
+
+        shift_date = datetime.datetime.strptime(s['shiftDate'], '%d.%m.%y')
+        (hh, mm) = hh_mm(s['shiftTimeStart'])
+        dt_shift_time_start = datetime.datetime(
+            year=shift_date.year, month=shift_date.month, day=shift_date.day, hour=hh, minute=mm, tzinfo=employee_tz)
+
+        dt_shift_time_end = dt_shift_time_start + delta
+
+        employee_schedule[employee_id].append(
+            (dt_shift_time_start, dt_shift_time_end)
+        )
+
+    # check 12h interval between shifts
+    _12h_delta = get_timedelta("12:00")
+    for employee_id, employee_schedule in employee_schedule.items():
+
+        employee_schedule = sorted(employee_schedule)
+
+        # go over the adjacent pairs of days
+        for prev_day, curr_day in zip(employee_schedule, employee_schedule[1:]):
+            (prev_start, prev_end) = prev_day
+            (curr_start, curr_end) = curr_day
+
+            rest_delta = curr_start - prev_end
+
+            if rest_delta < _12h_delta:
+                errors.append(
+                    (employee_id, "Less then 12h between shift",
+                     f'min time: {_12h_delta}',
+                     f'real: {rest_delta}\n({prev_start} - {prev_end}), ({curr_start} - {curr_end})')
+                )
+
+    return errors
 
 
 st.set_page_config(
@@ -157,8 +221,10 @@ if rostering_file is not None and meta_file is not None:
     meta_employees = get_meta_employees(meta, meta_schemas, meta_shifts)
 
     # (employee_id, error_text, expected, actual)
-    errors = []
-    df_errors = get_errors_df(rostering, meta_employees)
+    errors = get_errors(rostering, meta_employees)
+    errors = errors + get_errors_min_max_days(rostering, meta_employees, meta_shifts)
+    df_errors = pd.DataFrame(errors, columns=['Employee Id', 'Error Type', 'Expected', 'Actual'])
+    df_errors = df_errors.drop_duplicates()
 
     if len(df_errors) > 0:
 
