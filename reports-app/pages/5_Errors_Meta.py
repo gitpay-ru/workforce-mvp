@@ -18,23 +18,31 @@ def get_meta_schemas(meta):
     for s in meta['schemas']:
         schemas_id = s['id']
 
+        schema_shifts = []
+        for shift in s['shifts']:
+            schema_shifts.append(shift['shiftId'])
+
         meta_schemas[schemas_id] = dict(
             shifts_count=len(s['shifts']),
-            shift_id=s['shifts'][0]['shiftId']
+            shift_id=s['shifts'][0]['shiftId'],
+            schema_shift_ids = schema_shifts
         )
 
     return meta_schemas
 
 @st.cache_data
-def get_meta_shifts(meta):
+def get_meta_shifts(meta, meta_schemas):
     meta_shifts = {}
     for s in meta['shifts']:
         shift_id = s['id']
 
+        schemas_ids = [k for k, v in meta_schemas.items() if shift_id in v['schema_shift_ids']]
+
         meta_shifts[shift_id] = dict(
             activities_count=len(s['activities']),
             time_start=s['scheduleTimeStart'],
-            time_start_end=s['scheduleTimeEndStart']
+            time_start_end=s['scheduleTimeEndStart'],
+            schema_ids = schemas_ids
         )
 
     return meta_shifts
@@ -75,125 +83,45 @@ def get_meta_employees(meta, meta_schemas, meta_shifts):
     return meta_employees
 
 
-@st.cache_data
-def get_errors_df(rostering, meta_employees, ):
-    # (employee_id, error_text, expected, actual)
-    errors = []
-
-    # check rostering data
-    campaign_utc = rostering['campainUtc']
-    campaign_tz = datetime.timezone(datetime.timedelta(hours=campaign_utc))
-    for s in rostering['campainSchedule']:
-
-        employee_id = s['employeeId']
-        e = meta_employees[employee_id]
-
-        if s['employeeUtc'] != e['employee_utc']:
-            errors.append((
-                employee_id, f'Wrong employeeUtc', e['employee_utc'], s['employeeUtc']
-            ))
-
-        if s['schemaId'] != e['schema_id']:
-            errors.append((
-                employee_id, f'Wrong schemaId', e['schema_id'], s['schemaId']
-            ))
-
-        if s['shiftId'] != e['shift_id']:
-            errors.append((
-                employee_id, f'Wrong shiftId', e['shift_id'], s['shiftId']
-            ))
-
-        shift_date = datetime.datetime.strptime(s['shiftDate'], '%d.%m.%y')
-        (hh, mm) = hh_mm(s['shiftTimeStart'])
-        dt_shift_time_start = datetime.datetime(
-            year=shift_date.year, month=shift_date.month, day=shift_date.day, hour=hh, minute=mm, tzinfo=campaign_tz)
-
-        # campain-based time start
-        shift_time_start_tz = dt_shift_time_start.timetz()
-        # employee-based time start
-        shift_time_start_tz_e = dt_shift_time_start.astimezone(e['tz']).timetz()
-
-        if (shift_time_start_tz_e < e['dt_shift_time_start']) or (shift_time_start_tz_e > e['dt_shift_time_start_end']):
-            errors.append((
-                employee_id,
-                f'Wrong shift start time',
-                f"{e['dt_shift_time_start']} – {e['dt_shift_time_start_end']}",
-                f"{shift_time_start_tz} ({shift_time_start_tz_e})"
-            ))
-
-    # employees in rostering should equal to employees from meta file
-    df_rostering = pandas.DataFrame(rostering['campainSchedule'])
-    rostering_count = len(df_rostering['employeeId'].unique())
-    meta_count = len(meta_employees)
-    if rostering_count != meta_count:
-        errors.append(
-            ('', 'Wrong employees number', meta_count, rostering_count)
-        )
-
-
-    df_errors = pd.DataFrame(errors, columns=['Employee Id', 'Error Type', 'Expected', 'Actual'])
-    df_errors = df_errors.drop_duplicates()
-
-    return df_errors
-
-
 st.set_page_config(
     page_title="Errors report",
     page_icon="📈",
 )
 
-st.header("Errors report")
+st.header("Errors (Meta) report")
 
-rostering_file = st.sidebar.file_uploader("Upload 'rostering.json' file: ")
 meta_file = st.sidebar.file_uploader("Upload 'meta_file.json' file: ")
 
-if rostering_file is not None and meta_file is not None:
+if meta_file is not None:
 
-    rostering = json.load(rostering_file)
     meta = json.load(meta_file)
 
     meta_schemas = get_meta_schemas(meta)
-    meta_shifts = get_meta_shifts(meta)
+    meta_shifts = get_meta_shifts(meta, meta_schemas)
     meta_employees = get_meta_employees(meta, meta_schemas, meta_shifts)
 
     st.subheader('Schemas')
     col1, col2, col3 = st.columns(3)
     col1.metric('Total schemas', len(meta_schemas))
     col2.metric('Empty schemas', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] == 0, meta_schemas))))
+    col3.metric('Multiple shifts', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] > 1, meta_schemas))))
     with st.expander("Show schemas metadata"):
         meta_schemas
 
     st.subheader('Shifts')
-    col1, col2 = st.columns(2)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric('Total shifts', len(meta_shifts))
     col2.metric('Empty activities', len(list(filter(lambda x: meta_shifts[x]['activities_count'] == 0, meta_shifts))))
+    col3.metric('Empty schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) == 0, meta_shifts))))
+    col4.metric('Multiple schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) > 1, meta_shifts))))
     with st.expander("Show shifts metadata"):
         meta_shifts
 
     st.subheader('Employees')
-    col1, col2 = st.columns(2)
+    col1, *_ = st.columns(3)
     col1.metric("Total Employees", len(meta_employees))
     with st.expander("Show employees metadata"):
         meta_employees
-
-    st.subheader('Rostering errors')
-    # (employee_id, error_text, expected, actual)
-    errors = []
-    df_errors = get_errors_df(rostering, meta_employees)
-
-    if len(df_errors) > 0:
-
-        # filter widget by Error Type:
-        if error_type := st.multiselect("Error Type", df_errors['Error Type'].unique().tolist(), key=1):
-            df_errors = df_errors[df_errors['Error Type'].isin(error_type)]
-
-        if employee_search := st.text_input("Employee Id"):
-            df_errors = df_errors[df_errors['Employee Id'].str.contains(employee_search, case=False, na=False)]
-
-        st.dataframe(df_errors)
-
-        col1, = st.columns(1)
-        col1.metric('Errors count', len(df_errors))
 
 
     # # Plotly!
