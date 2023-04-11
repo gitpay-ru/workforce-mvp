@@ -30,7 +30,6 @@ def test_actual_time():
     }
 
     res = requests.post(os.getenv('urlpost'), files=files)
-    print(res.json()['id'])
     time.sleep(8)
 
     id = (res.json()['id'])
@@ -43,7 +42,7 @@ def test_actual_time():
     for s in meta['shifts']:
         shifts_duration[s['id']] = timedelta(minutes=int(s['duration'][:-3]) * 60 + int(s['duration'][-2:]))
 
-    print(shifts_duration)
+
 
     format = '%d.%m.%y %H:%M'
     shifts = map(
@@ -58,7 +57,6 @@ def test_actual_time():
     expected_time = 9 * 22  # 198
 
     actual_time = len(list(shifts)) * 9
-    print(actual_time)
 
     assert int(actual_time) == int(expected_time)
 
@@ -81,19 +79,18 @@ def test_actual_time_v2():
     }
 
     res = requests.post(os.getenv('urlpost'), files=files)
-    print(res.json()['id'])
     time.sleep(8)
 
     id = (res.json()['id'])
     op = f'task/{id}/result'
     sos = os.getenv('urlget')
     response = requests.get((sos) + str(op))
-    print(response.json())
+
 
     response_dict = response.json()
     df = pd.DataFrame(response_dict)
     df['employeeId'] = df.apply(lambda t: t['campainSchedule']['employeeId'], axis=1)
-    print(df, df.describe())
+
 
     expected_time = 198
     actual_time = (df['employeeId'].count() * 9)
