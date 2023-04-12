@@ -14,13 +14,13 @@ import pandas as pd
 def test_actual_time():
     load_dotenv(find_dotenv())
 
-    with open(f'.//_data_file_imp.csv', 'r', encoding='utf-8') as f:
+    with open(f'./_data_file_imp.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
 
-    with open(f'.//_meta_file.json', 'r', encoding='utf-8') as f:
+    with open(f'./_meta_file.json', 'r', encoding='utf-8') as f:
         meta = json.load(f)
 
-    with open(f'.//_solver_profile_file.json', 'r', encoding='utf-8') as f:
+    with open(f'./_solver_profile_file.json', 'r', encoding='utf-8') as f:
         solver = json.load(f)
 
     files = {
@@ -63,13 +63,13 @@ def test_actual_time():
 def test_actual_time_v2():
     load_dotenv(find_dotenv())
 
-    with open(f'.//_data_file_imp.csv', 'r', encoding='utf-8') as f:
+    with open(f'./_data_file_imp.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
 
-    with open(f'.//_meta_file.json', 'r', encoding='utf-8') as f:
+    with open(f'./_meta_file.json', 'r', encoding='utf-8') as f:
         meta = json.load(f)
 
-    with open(f'.//_solver_profile_file.json', 'r', encoding='utf-8') as f:
+    with open(f'./_solver_profile_file.json', 'r', encoding='utf-8') as f:
         solver = json.load(f)
 
     files = {
@@ -101,13 +101,13 @@ def test_actual_time_v2():
 def test_time():
     load_dotenv(find_dotenv())
 
-    with open(f'.//_data_file_imp.csv', 'r', encoding='utf-8') as f:
+    with open(f'./_data_file_imp.csv', 'r', encoding='utf-8') as f:
         reader = csv.reader(f)
 
-    with open(f'.//_meta_file_exp.json', 'r', encoding='utf-8') as f:
+    with open(f'./_meta_file_exp.json', 'r', encoding='utf-8') as f:
         meta = json.load(f)
 
-    with open(f'.//_solver_profile_file.json', 'r', encoding='utf-8') as f:
+    with open(f'./_solver_profile_file.json', 'r', encoding='utf-8') as f:
         solver = json.load(f)
 
     files = {
