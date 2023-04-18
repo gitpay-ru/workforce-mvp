@@ -5,18 +5,25 @@ import streamlit as st
 import plost
 import pandas as pd
 
-statistics_file = st.sidebar.file_uploader("Upload statistics .json file")
-if statistics_file is not None:
-    df_stats = pd.read_json(statistics_file)
+@st.cache_data
+def get_statistics_df(statistics_file):
+    df = pd.read_json(statistics_file)
 
-    df_stats['tc'] = pd.to_datetime(df_stats['tc'])
-    df_stats.set_index('tc', inplace=False)
+    df['tc'] = pd.to_datetime(df['tc'])
+    df.set_index('tc', inplace=False)
 
     # for better printing in the legend on graph
-    df_stats = df_stats.rename(columns={
+    df = df.rename(columns={
         'positions': 'Required positions',
         'scheduled_positions': 'Scheduled positions'}
     )
+
+    return df
+
+
+statistics_file = st.sidebar.file_uploader("Upload statistics .json file")
+if statistics_file is not None:
+    df_stats = get_statistics_df(statistics_file)
 
     st.subheader('Required positions vs Scheduled positions')
 
