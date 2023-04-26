@@ -455,10 +455,10 @@ if day_filter is None:
 # 4.1 Daily by statistics with filters
 # ----------------------------------------------
 
-df_b_stats_daily = df_b_stats[df_b_stats['tc_date'] == day_filter]
+df_b_stats_daily = df_b_stats[df_b_stats['tc_date'] == day_filter].copy()
 df_b_stats_daily["tc_time"] = df_b_stats_daily["tc"].dt.time
 
-df_stats_daily = df_stats[df_stats['tc_date'] == day_filter]
+df_stats_daily = df_stats[df_stats['tc_date'] == day_filter].copy()
 df_stats_daily["tc_time"] = df_stats_daily["tc"].dt.time
 
 if shift_filter:
@@ -481,10 +481,10 @@ st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 # 4.2 Daily by schedule with filters
 # ----------------------------------------------
 
-df_b_rostering_daily = df_b_rostering[df_b_rostering['tc_date'] == day_filter]
+df_b_rostering_daily = df_b_rostering[df_b_rostering['tc_date'] == day_filter].copy()
 df_b_rostering_daily["tc_time"] = df_b_rostering_daily.index.time
 
-df_rostering_daily = df_rostering[df_rostering['tc_date'] == day_filter]
+df_rostering_daily = df_rostering[df_rostering['tc_date'] == day_filter].copy()
 df_rostering_daily["tc_time"] = df_rostering_daily.index.time
 
 if shift_filter:
