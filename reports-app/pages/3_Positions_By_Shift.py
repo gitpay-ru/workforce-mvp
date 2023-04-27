@@ -146,9 +146,6 @@ def get_meta_capacity_df(meta_file) -> pd.DataFrame:
 
     return pd.concat(df_shifts)
 
-rostering_file = st.sidebar.file_uploader("Upload 'rostering.json' file: ")
-
-
 st.write(
     """
     This report compares **Required** positions and **Scheduled** positions by the model.
@@ -159,89 +156,61 @@ st.write(
     """
 )
 
-meta_file = st.sidebar.file_uploader("Upload 'meta_file.json' file: ")
-statistics_file = st.sidebar.file_uploader("Upload statistics .json file")
+meta_file = st.sidebar.file_uploader("Файл метаданных (meta_file.json): ")
+statistics_file = st.sidebar.file_uploader("Файл статистики (statistics_output.json):")
 
-if meta_file is not None:
-    st.subheader('Емкость смен (совокупная, дневная)')
-    st.write(
-        """
-        Данный график отображает емкость смен в разрезе разных часовых поясов. Данные отображены в тамйзоне кампании.
-        
-        Т.к. все дни считаются равнозначными, то нет необходимости строить месячный график.
-        """
-    )
-
-    df_meta_capacity = get_meta_capacity_df(meta_file)
-
-    # fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
-    fig = px.area(df_meta_capacity, y="works", color="utc", line_group="shiftName")
-    # fig.update_xaxes(showticklabels=True)
-    fig.update_layout(legend=dict(orientation="h"))
-    st.plotly_chart(fig, use_container_width=True, theme='streamlit')
-
-    if statistics_file is not None:
-        st.subheader('Дневные данные')
-        col1, col2 = st.columns(2)
-
-        df_stats = get_statistics_df(statistics_file)
-        min_day = df_stats.head(1).iloc[0]['tc_date']
-        max_day = df_stats.tail(1).iloc[0]['tc_date']
-        d = col1.date_input(
-            "Выберите день, для сравнения нагрузки и фактической емкости смен",
-            min_value=min_day,
-            max_value=max_day,
-            value=min_day)
-
-        df_day_stat = df_stats[df_stats['tc_date'] == d]
-        df_day_stat["tc"] = df_day_stat["tc"].dt.time
+if meta_file is None:
+    st.warning('Для продолжения работы укажите файл с метаданными.', icon="⚠️")
+    st.stop()
 
 
+st.subheader('Анализ смен')
+st.write(
+    """
+    Данный график отображает емкость смен в разрезе разных часовых поясов. Данные отображены в тамйзоне кампании.
+    
+    Т.к. все дни считаются равнозначными, то нет необходимости строить месячный график.
+    """
+)
 
-        df = df_meta_capacity.copy()
-        df = df.reset_index()
+df_meta_capacity = get_meta_capacity_df(meta_file)
+# fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
+fig = px.area(df_meta_capacity, y="works", color="utc", line_group="shiftName")
+# fig.update_xaxes(showticklabels=True)
+fig.update_layout(legend=dict(orientation="h"), title_text='Емкость смен (дневная)')
+st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
-        if s := col2.multiselect('Выберите смену', df_meta_capacity['shiftName'].unique()):
-            df = df[df['shiftName'].isin(s)]
+if statistics_file is None:
+    st.warning('Для продолжения работы укажите файл со статистикой.', icon="⚠️")
+    st.stop()
 
-        df = df.groupby(['tc'], as_index=False)['works'].sum()
+col1, col2 = st.columns(2)
 
-        # fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
-        fig = go.Figure()
-        fig.add_trace(go.Scatter(x=df["tc"], y=df["works"], fill='tozeroy', line_color="lightgray", name="Shifts capacity"))
-        fig.add_trace(go.Scatter(x=df_day_stat["tc"], y=df_day_stat["Required positions"], name="Required positions"))
+df_stats = get_statistics_df(statistics_file)
+min_day = df_stats.head(1).iloc[0]['tc_date']
+max_day = df_stats.tail(1).iloc[0]['tc_date']
+d = col1.date_input(
+    "Выберите день, для сравнения нагрузки и фактической емкости смен",
+    min_value=min_day,
+    max_value=max_day,
+    value=min_day)
 
-        # fig.update_xaxes(showticklabels=True)
-        fig.update_layout(legend=dict(orientation="h"))
-        st.plotly_chart(fig, use_container_width=True, theme='streamlit')
-
-
-
-
-
-
-
-
-if statistics_file is not None:
-    df_stats = get_statistics_df(statistics_file)
-
-    # wrong Y axis - replace it with plotly graphs, because area chart shows propotion by default
-    # st.area_chart(
-    #     data = df_stats,
-    #     x = "tc",
-    #     y = ["positions", "scheduled_positions"])
-
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Required positions'], name='Required positions', fill='tozeroy'))
-    fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Scheduled positions'], name='Scheduled positions', fill='tozeroy'))
-    fig.add_trace(go.Scatter(x=df_stats['tc'], y=df_stats['Missed positions'], name='Missed positions', fill='tozeroy'))
-
-    fig.update_layout(legend=dict(orientation="h"))
-    # fig.update_xaxes(rangeslider_visible=True)
-
-    st.plotly_chart(fig, use_container_width=True, theme='streamlit')
+df_day_stat = df_stats[df_stats['tc_date'] == d].copy()
+df_day_stat["tc"] = df_day_stat["tc"].dt.time
 
 
+df = df_meta_capacity.copy()
+df = df.reset_index()
 
+if s := col2.multiselect('Выберите смену', df_meta_capacity['shiftName'].unique()):
+    df = df[df['shiftName'].isin(s)]
 
-# df2 = pd.DataFrame(index=df1.index)
+df = df.groupby(['tc'], as_index=False)['works'].sum()
+
+# fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
+fig = go.Figure()
+fig.add_trace(go.Scatter(x=df["tc"], y=df["works"], fill='tozeroy', line_color="lightgray", name="Shifts capacity"))
+fig.add_trace(go.Scatter(x=df_day_stat["tc"], y=df_day_stat["Required positions"], name="Required positions"))
+# fig.update_xaxes(showticklabels=True)
+fig.update_layout(legend=dict(orientation="h"), title_text='Покрытие сменами')
+st.plotly_chart(fig, use_container_width=True, theme='streamlit')
