@@ -146,17 +146,7 @@ def get_meta_capacity_df(meta_file) -> pd.DataFrame:
 
     return pd.concat(df_shifts)
 
-st.write(
-    """
-    This report compares **Required** positions and **Scheduled** positions by the model.
-    It is expected that scheduled positions would be below the required positions line.
-    If Scheduled positions are above the required line => this indicates non-optimal scheduling.
-
-    You can use a full-screen view to investigate results in details.
-    """
-)
-
-meta_file = st.sidebar.file_uploader("Файл метаданных (meta_file.json): ")
+meta_file = st.sidebar.file_uploader("Файл метаданных (meta_file.json):")
 statistics_file = st.sidebar.file_uploader("Файл статистики (statistics_output.json):")
 
 if meta_file is None:
