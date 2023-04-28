@@ -3,3 +3,5 @@ __pycache
 .DS_Store
 /project/logs/*
 tmp/*
+
+.env
