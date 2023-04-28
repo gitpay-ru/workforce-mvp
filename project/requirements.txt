@@ -11,3 +11,4 @@ python-multipart==0.0.5
 pyworkforce @ git+https://github.com/gitpay-ru/pyworkforce.git@e0f9aa4
 matplotlib==3.6.2
 StrEnum~=0.4.9
+pandas~=1.5.2
