@@ -154,20 +154,23 @@ if meta_file is None:
     st.stop()
 
 
-st.subheader('Анализ смен')
+st.header('Анализ смен')
+
+# ----------------------------------------------
+# Capacity graph
+# ----------------------------------------------
+st.subheader('Емкость смен (совокупная, дневная)')
 st.write(
     """
     Данный график отображает емкость смен в разрезе разных часовых поясов. Данные отображены в тамйзоне кампании.
-    
-    Т.к. все дни считаются равнозначными, то нет необходимости строить месячный график.
+    График отображает дневные данные, т.к. нет правил регламентирующих иное распределение ресурсов, т.е. все дни месяца - одинаковые.
     """
 )
 
 df_meta_capacity = get_meta_capacity_df(meta_file)
-# fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
+
 fig = px.area(df_meta_capacity, y="works", color="utc", line_group="shiftName")
-# fig.update_xaxes(showticklabels=True)
-fig.update_layout(legend=dict(orientation="h"), title_text='Емкость смен (дневная)')
+fig.update_layout(legend=dict(orientation="h"), title_text='Доступность ресурсов по сменам')
 st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 
 if statistics_file is None:

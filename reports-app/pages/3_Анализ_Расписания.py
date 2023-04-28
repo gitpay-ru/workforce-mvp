@@ -317,6 +317,7 @@ if meta_file is None:
 meta = json.load(meta_file)
 campaign_utc = meta['campainUtc']
 campaign_tz = dt.timezone(dt.timedelta(hours=campaign_utc))
+df_meta_capacity = get_meta_capacity_df(meta)
 
 if statistics_file is None:
     st.warning('Для продолжения работы укажите файлы со статистикой.', icon="⚠️")
@@ -421,23 +422,6 @@ st.plotly_chart(fig2, use_container_width=True, theme='streamlit')
 st.header('Дневные данные')
 
 # ----------------------------------------------
-# 3. Capacity graph
-# ----------------------------------------------
-st.subheader('Емкость смен (совокупная, дневная)')
-st.write(
-    """
-    Данный график отображает емкость смен в разрезе разных часовых поясов. Данные отображены в тамйзоне кампании.
-    График отображает дневные данные, т.к. нет правил регламентирующих иное распределение ресурсов, т.е. все дни месяца - одинаковые.
-    """
-)
-
-df_meta_capacity = get_meta_capacity_df(meta)
-
-fig = px.area(df_meta_capacity, y="works", color="utc", line_group="shiftName")
-fig.update_layout(legend=dict(orientation="h"), title_text='Доступность ресурсов по сменам')
-st.plotly_chart(fig, use_container_width=True, theme='streamlit')
-
-# ----------------------------------------------
 # 4. Daily schedules
 # ----------------------------------------------
 
@@ -447,9 +431,6 @@ col1, col2 = st.columns(2)
 
 min_day = df_stats.head(1).iloc[0]['tc_date']
 max_day = df_stats.tail(1).iloc[0]['tc_date']
-
-df = df_meta_capacity.copy()
-df = df.reset_index()
 
 day_filter = col1.date_input("Выберите день, для сравнения плановых нагрузков и фактической емкости смен", min_value=min_day, max_value=max_day, value=min_day)
 shift_filter = col2.multiselect('Выберите смену', df_meta_capacity['shiftName'].unique())
@@ -462,6 +443,9 @@ if day_filter is None:
 # ----------------------------------------------
 # 4.1 Daily by statistics with filters
 # ----------------------------------------------
+
+df = df_meta_capacity.copy()
+df = df.reset_index()
 
 df_stats_daily = df_stats[df_stats['tc_date'] == day_filter].copy()
 df_stats_daily["tc_time"] = df_stats_daily["tc"].dt.time
