@@ -288,8 +288,8 @@ def get_shift_quantiles_df(quantile_files, convert_to_tz = None) -> pd.DataFrame
 
         if convert_to_tz:
             _df['tc'] = _df['tc'].dt.tz_convert(tz=convert_to_tz)
+            # _df.set_index('tc', inplace=True)
 
-        # _df.set_index('tc', inplace=True)
         dfs.append(_df)
 
     aggregated_df = pd.concat(dfs)
@@ -303,6 +303,20 @@ def get_shift_quantiles_df(quantile_files, convert_to_tz = None) -> pd.DataFrame
     df['tc_time'] = df['tc'].dt.time
 
     return df
+
+# недостаток в позициях, missed = required - scheduled
+def shortage_stat(df: pd.DataFrame):
+    avg = df[df['Missed positions'] > 0.0]['Missed positions'].mean()
+    sum_hr = df[df['Missed positions'] > 0.0]['Missed positions'].sum() // 4
+
+    return (avg, sum_hr)
+
+# перебор
+def excess_stat(df: pd.DataFrame):
+    avg = -1 * df_stats[df_stats['Missed positions'] < 0.0]['Missed positions'].mean()
+    sum_hr = -1 * df_stats[df_stats['Missed positions'] < 0.0]['Missed positions'].sum() // 4
+
+    return (avg, sum_hr)
 
 # =============================================================
 ### File loading
@@ -367,15 +381,8 @@ st.plotly_chart(fig, use_container_width=True, theme='streamlit')
 # 1.1. Missed FTA basis vs target
 # ----------------------------------------------
 
-# недостаток в позициях, missed = required - scheduled
-mp_shortage_avg = df_stats[df_stats['Missed positions'] > 0.0]['Missed positions'].mean()
-mp_shortage_cnt = df_stats[df_stats['Missed positions'] > 0.0]['Missed positions'].count()
-mp_shortage_sum_hr = df_stats[df_stats['Missed positions'] > 0.0]['Missed positions'].sum() // 4
-
-# перебор
-mp_excess_avg = -1 * df_stats[df_stats['Missed positions'] < 0.0]['Missed positions'].mean()
-mp_excess_cnt = df_stats[df_stats['Missed positions'] < 0.0]['Missed positions'].count()
-mp_excess_sum_hr = -1 * df_stats[df_stats['Missed positions'] < 0.0]['Missed positions'].sum() // 4
+mp_shortage_avg, mp_shortage_sum_hr = shortage_stat(df_stats)  # недостаток в позициях, missed = required - scheduled
+mp_excess_avg, mp_excess_sum_hr = excess_stat(df_stats)  # перебор
 
 col1, col2, col3, col4 = st.columns(4)
 col1.metric(label="Недобор средн.", value=f"{mp_shortage_avg:.2f} поз.")
@@ -452,6 +459,7 @@ df_stats_daily["tc_time"] = df_stats_daily["tc"].dt.time
 
 df_rostering_daily = df_rostering[df_rostering['tc_date'] == day_filter].copy()
 df_rostering_daily["tc_time"] = df_rostering_daily.index.time
+df_rostering_daily.reset_index(inplace=True)
 
 if shift_filter:
     df_rostering_daily = df_rostering_daily[df_rostering_daily['shiftName'].isin(shift_filter)]
@@ -462,20 +470,34 @@ if len(quantile_files) > 0:
     df_shift_quantiles = get_shift_quantiles_df(quantile_files, convert_to_tz = campaign_tz)
     df_shift_quantiles_daily = df_shift_quantiles[df_shift_quantiles['tc_date'] == day_filter]
 
+    df_shift_quantiles_daily
+    df_rostering_daily
+
+    df_shift_quantiles_daily['Missed positions'] = df_shift_quantiles_daily['positions_quantile'] - df_rostering_daily['works']
+
+    mp_shortage_avg, mp_shortage_sum_hr = shortage_stat(df_shift_quantiles_daily)  # недостаток в позициях, missed = required - scheduled
+    mp_excess_avg, mp_excess_sum_hr = excess_stat(df_shift_quantiles_daily)  # перебор
+
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric(label="Недобор средн.", value=f"{mp_shortage_avg:.2f} поз.")
+    col2.metric(label="Недобор всего", value=f"{mp_shortage_sum_hr} чел/ч.")
+    col3.metric(label="Перебор средн.", value=f"{mp_excess_avg:.2f} поз.")
+    col4.metric(label="Перебор всего", value=f"{mp_excess_sum_hr} чел/ч.")
+
 df_sum = df.groupby(['tc'], as_index=False)['works'].sum()
 df_rostering_daily = df_rostering_daily.groupby(['tc_time'], as_index=False)['works'].sum()
 
 # fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
 fig = go.Figure()
+
 fig.add_trace(go.Scatter(x=df_stats_daily["tc_time"], y=df_stats_daily["Required positions"], name="FTE треб", fill='tozeroy', line_color="lightgray"))
+if df_shift_quantiles_daily is not None: fig.add_trace(go.Scatter(x=df_shift_quantiles_daily["tc_time"], y=df_shift_quantiles_daily["positions_quantile"], name="FTE треб (смена)", line_color='gray', line_dash='dash'))
+
 fig.add_trace(go.Scatter(x=df_sum["tc"], y=df_sum["works"], name="Емкость смен(ы)", line_color='turquoise'))
+if df_shift_quantiles_daily is not None: fig.add_trace(go.Scatter(x=df_shift_quantiles_daily["tc_time"], y=df_shift_quantiles_daily["capacity"], name="Емкость (смена)", line_color='turquoise', line_dash='dash'))
+
 fig.add_trace(go.Scatter(x=df_stats_daily["tc_time"], y=df_stats_daily["Scheduled positions"], name="FTE эфф (по статистике)", line_color='crimson', line_dash='dot'))
 fig.add_trace(go.Scatter(x=df_rostering_daily["tc_time"], y=df_rostering_daily["works"], name="FTE план (по расписанию)", line_color='crimson'))
-
-if df_shift_quantiles_daily is not None:
-    fig.add_trace(go.Scatter(x=df_shift_quantiles_daily["tc_time"], y=df_shift_quantiles_daily["capacity"], name="Емкость (смена)", line_color='turquoise', line_dash='dash'))
-    fig.add_trace(go.Scatter(x=df_shift_quantiles_daily["tc_time"], y=df_shift_quantiles_daily["positions_quantile"], name="FTE треб (смена)", line_color='gray', line_dash='dash'))
-
 
 # fig.update_xaxes(showticklabels=True)
 fig.update_layout(legend=dict(orientation="h"), title_text='Ресурсы на день (расписание + статистика)')
