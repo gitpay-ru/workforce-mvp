@@ -7,13 +7,13 @@ import os
 from dotenv import load_dotenv, find_dotenv
 import pandas as pd
 
-with open(f'_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_shift_time_start/_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
 
-with open(f'_meta_file_first_employees_shift_time_start.json', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_shift_time_start/_meta_file_first_employees_shift_time_start.json', 'r', encoding='utf-8') as f:
     meta = json.load(f)
 
-with open(f'_solver_profile_file.json', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_shift_time_start/_solver_profile_file.json', 'r', encoding='utf-8') as f:
     solver = json.load(f)
 
 
@@ -22,9 +22,9 @@ def test_first_employees_shift_time_start():
     load_dotenv(find_dotenv())
 
     files = {
-        "data_file": open('_data_file_improvisation.csv', 'rb'),
-        "meta_file": open('_meta_file_first_employees_shift_time_start.json', 'rb'),
-        "solver_profile_file": open('_solver_profile_file.json', 'rb')
+        "data_file": open('test_first_employees_shift_time_start/_data_file_improvisation.csv', 'rb'),
+        "meta_file": open('test_first_employees_shift_time_start/_meta_file_first_employees_shift_time_start.json', 'rb'),
+        "solver_profile_file": open('test_first_employees_shift_time_start/_solver_profile_file.json', 'rb')
     }
     res = requests.post(os.getenv('urlpost'), files=files)
     time.sleep(20)

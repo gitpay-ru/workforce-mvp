@@ -9,14 +9,13 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 
-
-with open(f'_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
+with open('test_actual_time_one_employee_one_month/_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
 
-with open(f'_meta_file_actual_time_one_employee_one_month.json', 'r', encoding='utf-8') as f:
+with open('test_actual_time_one_employee_one_month/_meta_file_actual_time_one_employee_one_month.json', 'r', encoding='utf-8') as f:
     meta = json.load(f)
 
-with open(f'_solver_profile_file.json', 'r', encoding='utf-8') as f:
+with open('test_actual_time_one_employee_one_month/_solver_profile_file.json', 'r', encoding='utf-8') as f:
     solver = json.load(f)
 
 
@@ -41,9 +40,9 @@ def test_actual_time_one_employee_one_month():
     load_dotenv(find_dotenv())
 
     files = {
-        "data_file": open('_data_file_improvisation.csv', 'rb'),
-        "meta_file": open('_meta_file_actual_time_one_employee_one_month.json', 'rb'),
-        "solver_profile_file": open('_solver_profile_file.json', 'rb')
+        "data_file": open('test_actual_time_one_employee_one_month/_data_file_improvisation.csv', 'rb'),
+        "meta_file": open('test_actual_time_one_employee_one_month/_meta_file_actual_time_one_employee_one_month.json', 'rb'),
+        "solver_profile_file": open('test_actual_time_one_employee_one_month/_solver_profile_file.json', 'rb')
     }
     res = requests.post(os.getenv('urlpost'), files=files)
     time.sleep(20)

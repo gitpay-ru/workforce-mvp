@@ -10,13 +10,13 @@ from dotenv import load_dotenv, find_dotenv
 
 
 
-with open(f'_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_working_hours/_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
     reader = csv.reader(f)
 
-with open(f'_meta_file_first_employees_working_hours.json', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'r', encoding='utf-8') as f:
     meta = json.load(f)
 
-with open(f'_solver_profile_file.json', 'r', encoding='utf-8') as f:
+with open(f'test_first_employees_working_hours/_solver_profile_file.json', 'r', encoding='utf-8') as f:
     solver = json.load(f)
 
 
@@ -41,9 +41,9 @@ def test_first_employees_working_hours():
     load_dotenv(find_dotenv())
 
     files = {
-        "data_file": open('_data_file_improvisation.csv', 'rb'),
-        "meta_file": open('_meta_file_first_employees_working_hours.json', 'rb'),
-        "solver_profile_file": open('_solver_profile_file.json', 'rb')
+        "data_file": open('test_first_employees_working_hours/_data_file_improvisation.csv', 'rb'),
+        "meta_file": open('test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'rb'),
+        "solver_profile_file": open('test_first_employees_working_hours/_solver_profile_file.json', 'rb')
     }
     res = requests.post(os.getenv('urlpost'), files=files)
     time.sleep(20)
