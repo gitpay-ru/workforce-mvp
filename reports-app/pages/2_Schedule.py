@@ -1,9 +1,16 @@
+from pathlib import Path
+import sys
+# this is a hack to make streamlit working with common 'modules'
+# need to include in every streamlit page
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import streamlit as st
 import plotly.express as px
 import pandas as pd
 import json
 import datetime
-import plost
+
+from utils.helpers import parse_datetime
 
 st.set_page_config(
     page_title="Schedule summary",
@@ -48,11 +55,11 @@ if rostering_file is not None and meta_file is not None:
         shifts_duration[s['id']] = datetime.timedelta(minutes= int(s['duration'][:-3]) * 60+ int(s['duration'][-2:]))
 
     # shifts to dataframe
-    format = '%d.%m.%y %H:%M'
+    format = '%d.%m.%y %H:%M:%S'
     shifts = map(
             lambda x: dict(Employee = str(x['employeeId']),
-                           Start = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format),
-                           Finish = datetime.datetime.strptime(f"{x['shiftDate']} {x['shiftTimeStart']}", format) + shifts_duration[x['shiftId']],
+                           Start = parse_datetime(f"{x['shiftDate']} {x['shiftTimeStart']}"),
+                           Finish = parse_datetime(f"{x['shiftDate']} {x['shiftTimeStart']}") + shifts_duration[x['shiftId']],
                            Activity = x['shiftId'],
                            width = 0.4)
             , rostering['campainSchedule']
@@ -72,9 +79,9 @@ if rostering_file is not None and meta_file is not None:
             employee_id = s['employeeId']
             activity_id = a['activityId']
 
-            shift_start = datetime.datetime.strptime(f"{s['shiftDate']} {s['shiftTimeStart']}", format)
-            activity_start = datetime.datetime.strptime(f"{s['shiftDate']} {a['activityTimeStart']}", format)
-            activity_end = datetime.datetime.strptime(f"{s['shiftDate']} {a['activityTimeEnd']}", format)
+            shift_start = parse_datetime(f"{s['shiftDate']} {s['shiftTimeStart']}")
+            activity_start = parse_datetime(f"{s['shiftDate']} {a['activityTimeStart']}")
+            activity_end = parse_datetime(f"{s['shiftDate']} {a['activityTimeEnd']}")
 
             if activity_end < activity_start:
                 # if activity start time < shift start time => its overnight activity and just +1 day
@@ -115,8 +122,3 @@ if rostering_file is not None and meta_file is not None:
     st.caption('Shifts with activities plot')
 
     status_text.markdown("**Done**")
-
-# Streamlit widgets automatically run the script from top to bottom. Since
-# this button is not connected to any other logic, it just causes a plain
-# rerun.
-# st.button("Re-run")

@@ -1,88 +1,19 @@
+from pathlib import Path
+import sys
+# this is a hack to make streamlit working with common 'modules'
+# need to include in every streamlit page
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import json
 import plotly.graph_objects as go
 import plotly.express as px
 
 import streamlit as st
 import pandas as pd
-import numpy as np
 import datetime as dt
 
-def hh_mm(time_string):
-    hh = int(time_string.split(":")[0])
-    mm = int(time_string.split(":")[1])
-
-    return (hh, mm)
-
-def hh_mm_time(time_string) -> dt.time:
-    (hh, mm) = hh_mm(time_string)
-    return dt.time(hour=hh, minute=mm)
-
-def hh_mm_timedelta(time_string) -> dt.timedelta:
-    (hh, mm) = hh_mm(time_string)
-    return dt.timedelta(hours=hh, minutes=mm)
-
-
-@st.cache_data
-def get_statistics_df(statistics_file):
-    df = pd.read_json(statistics_file)
-
-    df['tc'] = pd.to_datetime(df['tc'])
-    df['tc_date'] = df['tc'].dt.date
-    df.set_index('tc', inplace=False)
-
-    # for better printing in the legend on graph
-    df = df.rename(columns={
-        'positions': 'Required positions',
-        'scheduled_positions': 'Scheduled positions'
-    })
-
-    df['Missed positions'] = df['Required positions'] - df['Scheduled positions']
-
-    return df
-
-
-def get_emptyDay_df() -> pd.DataFrame:
-    intervals = int(24 * 60 / 15)
-
-    t = [dt.time(hour=int(i*15 / 60), minute=i*15 % 60) for i in range(intervals)]
-    presence = [0 for i in range(intervals)]
-    data = {
-        "tc": t,
-        "works": presence
-    }
-
-    df = pd.DataFrame(data, columns=['tc', 'works'])
-    df.set_index('tc', inplace=True)
-    return df
-
-
-@st.cache_data
-def get_1Day_df(time_start: dt.time, time_end: dt.time) -> pd.DataFrame:
-    intervals = int(24*60/15)
-    t = [dt.time(hour=int(i * 15 / 60), minute=i * 15 % 60) for i in range(intervals)]
-
-    if time_end > time_start:
-        presence = [1 if (t[i] >= time_start and t[i] <= time_end) else 0 for i in range(intervals)]
-    else:
-        presence = [1 if (t[i] >= time_start or t[i] <= time_end) else 0 for i in range(intervals)]
-
-    data = {
-        "tc": t,
-        "works": presence
-    }
-
-    df = pd.DataFrame(data, columns=['tc', 'works'])
-    df.set_index('tc', inplace=True)
-    return df
-
-
-def roll(df: pd.DataFrame, count: int) -> pd.DataFrame:
-    # roll every column,
-    # this is like shift() but in a cyclic way
-    for column in df:
-        df[column] = np.roll(df[column], count)
-
-    return df
+from utils.helpers import hh_mm, hh_mm_time, hh_mm_timedelta, get_1Day_df, roll
+from utils.data_loaders import get_statistics_df
 
 
 @st.cache_data
@@ -153,7 +84,6 @@ if meta_file is None:
     st.warning('Для продолжения работы укажите файл с метаданными.', icon="⚠️")
     st.stop()
 
-
 st.header('Анализ смен')
 
 # ----------------------------------------------
@@ -189,8 +119,6 @@ d = col1.date_input(
     value=min_day)
 
 df_day_stat = df_stats[df_stats['tc_date'] == d].copy()
-df_day_stat["tc"] = df_day_stat["tc"].dt.time
-
 
 df = df_meta_capacity.copy()
 df = df.reset_index()
@@ -203,7 +131,7 @@ df = df.groupby(['tc'], as_index=False)['works'].sum()
 # fig = px.bar(df_meta_capacity, y="works", color="shiftId")  # x == 'tc', this is an index
 fig = go.Figure()
 fig.add_trace(go.Scatter(x=df["tc"], y=df["works"], fill='tozeroy', line_color="lightgray", name="Shifts capacity"))
-fig.add_trace(go.Scatter(x=df_day_stat["tc"], y=df_day_stat["Required positions"], name="Required positions"))
+fig.add_trace(go.Scatter(x=df_day_stat["tc_time"], y=df_day_stat["Required positions"], name="Required positions"))
 # fig.update_xaxes(showticklabels=True)
 fig.update_layout(legend=dict(orientation="h"), title_text='Покрытие сменами')
 st.plotly_chart(fig, use_container_width=True, theme='streamlit')

@@ -1,19 +1,17 @@
-import pandas
+from pathlib import Path
+import sys
+# this is a hack to make streamlit working with common 'modules'
+# need to include in every streamlit page
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import streamlit as st
-import plotly.express as px
-import pandas as pd
 import json
 import datetime
-import plost
 
-def hh_mm(time_string):
-    hh = int(time_string.split(":")[0])
-    mm = int(time_string.split(":")[1])
-
-    return (hh, mm)
+from utils.helpers import hh_mm
 
 @st.cache_data
-def get_meta_schemas(meta):
+def get_meta_schemas(meta: dict):
     meta_schemas = {}
     for s in meta['schemas']:
         schemas_id = s['id']
@@ -31,7 +29,7 @@ def get_meta_schemas(meta):
     return meta_schemas
 
 @st.cache_data
-def get_meta_shifts(meta, meta_schemas):
+def get_meta_shifts(meta: dict, meta_schemas):
     meta_shifts = {}
     for s in meta['shifts']:
         shift_id = s['id']
@@ -49,7 +47,7 @@ def get_meta_shifts(meta, meta_schemas):
 
 
 @st.cache_data
-def get_meta_employees(meta, meta_schemas, meta_shifts):
+def get_meta_employees(meta: dict, meta_schemas, meta_shifts):
     meta_employees = {}
     for e in meta['employees']:
         _employee_id = e['id']
@@ -122,21 +120,3 @@ if meta_file is not None:
     col1.metric("Total Employees", len(meta_employees))
     with st.expander("Show employees metadata"):
         meta_employees
-
-
-    # # Plotly!
-    # fig = px.timeline(df, x_start="Start", x_end="Finish", y="Employee", color="Activity", height=num_employees*16)
-    # fig.update_yaxes(autorange="reversed", visible=False, showticklabels=False)
-    # fig.update_layout(showlegend=False)
-    # for i, d in enumerate(fig.data):
-    #     d.width = df[df['Activity'] == d.name]['width']
-    # # fig.update_xaxes(rangeslider_visible=True)
-    #
-    # st.subheader('Shifts with activities plot')
-    # st.plotly_chart(fig, use_container_width=True)
-    # st.caption('Shifts with activities plot')
-
-# Streamlit widgets automatically run the script from top to bottom. Since
-# this button is not connected to any other logic, it just causes a plain
-# rerun.
-# st.button("Re-run")
