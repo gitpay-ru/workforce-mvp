@@ -1,5 +1,4 @@
 pandas
 streamlit
-plost
 plotly
 openpyxl
