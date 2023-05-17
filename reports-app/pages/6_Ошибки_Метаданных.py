@@ -82,13 +82,13 @@ def get_meta_employees(meta: dict, meta_schemas, meta_shifts):
 
 
 st.set_page_config(
-    page_title="Errors report",
+    page_title="Ошибки в метаданных",
     page_icon="📈",
 )
 
-st.header("Errors (Meta) report")
+st.header("Ошибки в метаданных")
 
-meta_file = st.sidebar.file_uploader("Upload 'meta_file.json' file: ")
+meta_file = st.sidebar.file_uploader("Выберите файл метаданных 'meta_file.json': ")
 
 if meta_file is not None:
 
@@ -98,25 +98,25 @@ if meta_file is not None:
     meta_shifts = get_meta_shifts(meta, meta_schemas)
     meta_employees = get_meta_employees(meta, meta_schemas, meta_shifts)
 
-    st.subheader('Schemas')
+    st.subheader('Схемы')
     col1, col2, col3 = st.columns(3)
-    col1.metric('Total schemas', len(meta_schemas))
-    col2.metric('Empty schemas', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] == 0, meta_schemas))))
-    col3.metric('Multiple shifts', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] > 1, meta_schemas))))
-    with st.expander("Show schemas metadata"):
+    col1.metric('Всего схем', len(meta_schemas))
+    col2.metric('Смены не заданы', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] == 0, meta_schemas))))
+    col3.metric('Несколько смен', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] > 1, meta_schemas))))
+    with st.expander("Показать метаданные схем"):
         meta_schemas
 
-    st.subheader('Shifts')
+    st.subheader('Смены')
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric('Total shifts', len(meta_shifts))
-    col2.metric('Empty activities', len(list(filter(lambda x: meta_shifts[x]['activities_count'] == 0, meta_shifts))))
-    col3.metric('Empty schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) == 0, meta_shifts))))
-    col4.metric('Multiple schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) > 1, meta_shifts))))
-    with st.expander("Show shifts metadata"):
+    col1.metric('Всего смен', len(meta_shifts))
+    col2.metric('Всего активностей', len(list(filter(lambda x: meta_shifts[x]['activities_count'] == 0, meta_shifts))))
+    col3.metric('Схемы не заданы', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) == 0, meta_shifts))))
+    col4.metric('Несколько схем', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) > 1, meta_shifts))))
+    with st.expander("Показать метаданные смен"):
         meta_shifts
 
-    st.subheader('Employees')
+    st.subheader('Сотрудники')
     col1, *_ = st.columns(3)
-    col1.metric("Total Employees", len(meta_employees))
-    with st.expander("Show employees metadata"):
+    col1.metric("Всего сотрудников", len(meta_employees))
+    with st.expander("Показать метаданные по сотрудникам"):
         meta_employees
