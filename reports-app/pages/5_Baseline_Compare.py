@@ -92,11 +92,14 @@ def columns_equal(df1: pd.DataFrame, df2: pd.DataFrame, column_name: str) -> boo
 # =============================================================
 ### File loading
 meta_file = st.sidebar.file_uploader("Upload 'meta_file.json' file: ")
-baseline_statistics_file = st.sidebar.file_uploader("Upload baseline 'statistics.json' file")
-statistics_file = st.sidebar.file_uploader("Upload 'statistics.json' file")
 
-baseline_rostering_file = st.sidebar.file_uploader("Upload baseline 'rostering.json' file: ")
-rostering_file = st.sidebar.file_uploader("Upload 'rostering.json' file: ")
+with st.sidebar.expander("Baseline") as c:
+    baseline_statistics_file = st.file_uploader("Upload baseline 'statistics.json' file")
+    baseline_rostering_file = st.file_uploader("Upload baseline 'rostering.json' file: ")
+
+with st.sidebar.expander("Target"):
+    statistics_file = st.file_uploader("Upload 'statistics.json' file")
+    rostering_file = st.file_uploader("Upload 'rostering.json' file: ")
 
 if baseline_statistics_file is None or statistics_file is None:
     st.warning('Для продолжения работы укажите файлы со статистикой (базовый и целевой)', icon="⚠️")
