@@ -9,20 +9,9 @@ import os
 from dotenv import load_dotenv, find_dotenv
 
 
+def response_to_shifts(meta, response):
 
-with open(f'test_first_employees_working_hours/_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
-    reader = csv.reader(f)
-
-with open(f'test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'r', encoding='utf-8') as f:
-    meta = json.load(f)
-
-with open(f'test_first_employees_working_hours/_solver_profile_file.json', 'r', encoding='utf-8') as f:
-    solver = json.load(f)
-
-
-format = '%d.%m.%y %H:%M'
-def response_to_shifts():
-
+    format = '%d.%m.%y %H:%M'
     shifts_duration = {}
     for s in meta['shifts']:
         shifts_duration[s['id']] = timedelta(minutes=int(s['duration'][:-3]) * 60 + int(s['duration'][-2:]))
@@ -45,13 +34,16 @@ def test_first_employees_working_hours():
         "meta_file": open('test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'rb'),
         "solver_profile_file": open('test_first_employees_working_hours/_solver_profile_file.json', 'rb')
     }
+    with open(f'test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'r',
+              encoding='utf-8') as f:
+        meta = json.load(f)
+
     res = requests.post(os.getenv('urlpost'), files=files)
     time.sleep(20)
 
-    global response
     id = (res.json()['id'])
     response = requests.get(os.getenv('urlget') + f'task/{id}/result')
-    shifts = response_to_shifts()
+    shifts = response_to_shifts(meta, response)
     maxWorkingHours = meta['employees'][0]['maxWorkingHours']
     minWorkingHours = meta['employees'][0]['minWorkingHours']
 

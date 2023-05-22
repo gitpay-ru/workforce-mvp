@@ -39,7 +39,7 @@ def test_actual_time_one_employee_one_month():
 
     #Act
     res = requests.post(os.getenv('urlpost'), files=files)
-    time.sleep(50)
+    time.sleep(20)
 
 
     #Assert

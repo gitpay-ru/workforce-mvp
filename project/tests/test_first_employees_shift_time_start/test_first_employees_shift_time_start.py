@@ -1,22 +1,10 @@
 import pytest
 import requests
 import json
-import csv
 import time
 import os
 from dotenv import load_dotenv, find_dotenv
 import pandas as pd
-
-with open(f'test_first_employees_shift_time_start/_data_file_improvisation.csv', 'r', encoding='utf-8') as f:
-    reader = csv.reader(f)
-
-with open(f'test_first_employees_shift_time_start/_meta_file_first_employees_shift_time_start.json', 'r', encoding='utf-8') as f:
-    meta = json.load(f)
-
-with open(f'test_first_employees_shift_time_start/_solver_profile_file.json', 'r', encoding='utf-8') as f:
-    solver = json.load(f)
-
-
 
 def test_first_employees_shift_time_start():
     load_dotenv(find_dotenv())
@@ -26,6 +14,10 @@ def test_first_employees_shift_time_start():
         "meta_file": open('test_first_employees_shift_time_start/_meta_file_first_employees_shift_time_start.json', 'rb'),
         "solver_profile_file": open('test_first_employees_shift_time_start/_solver_profile_file.json', 'rb')
     }
+    with open(f'test_first_employees_shift_time_start/_meta_file_first_employees_shift_time_start.json', 'r',
+              encoding='utf-8') as f:
+        meta = json.load(f)
+
     res = requests.post(os.getenv('urlpost'), files=files)
     time.sleep(20)
 
