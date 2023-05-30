@@ -7,6 +7,7 @@ from datetime import datetime
 from datetime import timedelta
 import os
 from dotenv import load_dotenv, find_dotenv
+import pandas as pd
 
 
 def response_to_shifts(meta, response):
@@ -23,18 +24,20 @@ def response_to_shifts(meta, response):
                                   shifts_duration[x['shiftId']],
                    Shift=x['shiftId'])
     , response.json()["campainSchedule"]
-)
+    )
     return shifts
 
-def test_first_employees_working_hours():
+
+
+def test_actual_time_3th_employee_28_day():
     load_dotenv(find_dotenv())
 
     files = {
-        "data_file": open('test_first_employees_working_hours/_data_file_improvisation.csv', 'rb'),
-        "meta_file": open('test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'rb'),
-        "solver_profile_file": open('test_first_employees_working_hours/_solver_profile_file.json', 'rb')
+        "data_file": open('test_actual_time_28_day/_data_file_improvisation_28_day.csv', 'rb'),
+        "meta_file": open('test_actual_time_28_day/_meta_file_actual_time_28_day_one_month.json', 'rb'),
+        "solver_profile_file": open('test_actual_time_28_day/_solver_profile_file.json', 'rb')
     }
-    with open(f'test_first_employees_working_hours/_meta_file_first_employees_working_hours.json', 'r',
+    with open(f'test_actual_time_28_day/_meta_file_actual_time_28_day_one_month.json', 'r',
               encoding='utf-8') as f:
         meta = json.load(f)
 
@@ -44,9 +47,15 @@ def test_first_employees_working_hours():
     id = (res.json()['id'])
     response = requests.get(os.getenv('urlget') + f'task/{id}/result')
     shifts = response_to_shifts(meta, response)
-    maxWorkingHours = meta['employees'][0]['maxWorkingHours']
-    minWorkingHours = meta['employees'][0]['minWorkingHours']
 
-    actual_time = len(list(shifts)) * 9 - 22
-    assert actual_time <= maxWorkingHours
-    assert actual_time >= minWorkingHours
+    df = pd.DataFrame(shifts)
+    employees1 = df['Employee'].value_counts()[2] * 8
+    employees2 = df['Employee'].value_counts()[1] * 8
+    employees3 = df['Employee'].value_counts()[0] * 8
+    maxWorkingHoursE1 = meta['employees'][0]['maxWorkingHours']
+    maxWorkingHoursE2 = meta['employees'][1]['maxWorkingHours']
+    maxWorkingHoursE3 = meta['employees'][2]['maxWorkingHours']
+    assert maxWorkingHoursE1 == employees1
+    assert maxWorkingHoursE2 == employees2
+    assert maxWorkingHoursE3 == employees3
+
