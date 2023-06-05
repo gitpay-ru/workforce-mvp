@@ -1,19 +1,17 @@
-import pandas
+from pathlib import Path
+import sys
+# this is a hack to make streamlit working with common 'modules'
+# need to include in every streamlit page
+sys.path.append(str(Path(__file__).resolve().parent))
+
 import streamlit as st
-import plotly.express as px
-import pandas as pd
 import json
 import datetime
-import plost
 
-def hh_mm(time_string):
-    hh = int(time_string.split(":")[0])
-    mm = int(time_string.split(":")[1])
-
-    return (hh, mm)
+from utils.helpers import hh_mm
 
 @st.cache_data
-def get_meta_schemas(meta):
+def get_meta_schemas(meta: dict):
     meta_schemas = {}
     for s in meta['schemas']:
         schemas_id = s['id']
@@ -31,7 +29,7 @@ def get_meta_schemas(meta):
     return meta_schemas
 
 @st.cache_data
-def get_meta_shifts(meta, meta_schemas):
+def get_meta_shifts(meta: dict, meta_schemas):
     meta_shifts = {}
     for s in meta['shifts']:
         shift_id = s['id']
@@ -49,7 +47,7 @@ def get_meta_shifts(meta, meta_schemas):
 
 
 @st.cache_data
-def get_meta_employees(meta, meta_schemas, meta_shifts):
+def get_meta_employees(meta: dict, meta_schemas, meta_shifts):
     meta_employees = {}
     for e in meta['employees']:
         _employee_id = e['id']
@@ -84,13 +82,13 @@ def get_meta_employees(meta, meta_schemas, meta_shifts):
 
 
 st.set_page_config(
-    page_title="Errors report",
+    page_title="Ошибки в метаданных",
     page_icon="📈",
 )
 
-st.header("Errors (Meta) report")
+st.header("Ошибки в метаданных")
 
-meta_file = st.sidebar.file_uploader("Upload 'meta_file.json' file: ")
+meta_file = st.sidebar.file_uploader("Выберите файл метаданных 'meta_file.json': ")
 
 if meta_file is not None:
 
@@ -100,43 +98,25 @@ if meta_file is not None:
     meta_shifts = get_meta_shifts(meta, meta_schemas)
     meta_employees = get_meta_employees(meta, meta_schemas, meta_shifts)
 
-    st.subheader('Schemas')
+    st.subheader('Схемы')
     col1, col2, col3 = st.columns(3)
-    col1.metric('Total schemas', len(meta_schemas))
-    col2.metric('Empty schemas', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] == 0, meta_schemas))))
-    col3.metric('Multiple shifts', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] > 1, meta_schemas))))
-    with st.expander("Show schemas metadata"):
+    col1.metric('Всего схем', len(meta_schemas))
+    col2.metric('Смены не заданы', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] == 0, meta_schemas))))
+    col3.metric('Несколько смен', len(list(filter(lambda x: meta_schemas[x]['shifts_count'] > 1, meta_schemas))))
+    with st.expander("Показать метаданные схем"):
         meta_schemas
 
-    st.subheader('Shifts')
+    st.subheader('Смены')
     col1, col2, col3, col4 = st.columns(4)
-    col1.metric('Total shifts', len(meta_shifts))
-    col2.metric('Empty activities', len(list(filter(lambda x: meta_shifts[x]['activities_count'] == 0, meta_shifts))))
-    col3.metric('Empty schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) == 0, meta_shifts))))
-    col4.metric('Multiple schemas', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) > 1, meta_shifts))))
-    with st.expander("Show shifts metadata"):
+    col1.metric('Всего смен', len(meta_shifts))
+    col2.metric('Всего активностей', len(list(filter(lambda x: meta_shifts[x]['activities_count'] == 0, meta_shifts))))
+    col3.metric('Схемы не заданы', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) == 0, meta_shifts))))
+    col4.metric('Несколько схем', len(list(filter(lambda x: len(meta_shifts[x]['schema_ids']) > 1, meta_shifts))))
+    with st.expander("Показать метаданные смен"):
         meta_shifts
 
-    st.subheader('Employees')
+    st.subheader('Сотрудники')
     col1, *_ = st.columns(3)
-    col1.metric("Total Employees", len(meta_employees))
-    with st.expander("Show employees metadata"):
+    col1.metric("Всего сотрудников", len(meta_employees))
+    with st.expander("Показать метаданные по сотрудникам"):
         meta_employees
-
-
-    # # Plotly!
-    # fig = px.timeline(df, x_start="Start", x_end="Finish", y="Employee", color="Activity", height=num_employees*16)
-    # fig.update_yaxes(autorange="reversed", visible=False, showticklabels=False)
-    # fig.update_layout(showlegend=False)
-    # for i, d in enumerate(fig.data):
-    #     d.width = df[df['Activity'] == d.name]['width']
-    # # fig.update_xaxes(rangeslider_visible=True)
-    #
-    # st.subheader('Shifts with activities plot')
-    # st.plotly_chart(fig, use_container_width=True)
-    # st.caption('Shifts with activities plot')
-
-# Streamlit widgets automatically run the script from top to bottom. Since
-# this button is not connected to any other logic, it just causes a plain
-# rerun.
-# st.button("Re-run")

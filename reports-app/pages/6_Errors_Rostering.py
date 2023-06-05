@@ -1,3 +1,9 @@
+from pathlib import Path
+import sys
+# this is a hack to make streamlit working with common 'modules'
+# need to include in every streamlit page
+sys.path.append(str(Path(__file__).resolve().parent))
+
 from collections import defaultdict
 
 import pandas
@@ -8,14 +14,11 @@ import json
 import datetime
 import plost
 
-def hh_mm(time_string):
-    hh = int(time_string.split(":")[0])
-    mm = int(time_string.split(":")[1])
+from utils.helpers import hh_mm, hh_mm_timedelta
 
-    return (hh, mm)
 
 @st.cache_data
-def get_meta_schemas(meta):
+def get_meta_schemas(meta: dict):
     meta_schemas = {}
     for s in meta['schemas']:
         schemas_id = s['id']
@@ -32,7 +35,7 @@ def get_meta_schemas(meta):
     return meta_schemas
 
 @st.cache_data
-def get_meta_shifts(meta):
+def get_meta_shifts(meta: dict):
     meta_shifts = {}
     for s in meta['shifts']:
         shift_id = s['id']
@@ -48,7 +51,7 @@ def get_meta_shifts(meta):
 
 
 @st.cache_data
-def get_meta_employees(meta, meta_schemas, meta_shifts):
+def get_meta_employees(meta: dict, meta_schemas, meta_shifts):
     meta_employees = {}
     for e in meta['employees']:
         _employee_id = e['id']
@@ -141,14 +144,6 @@ def get_errors(rostering, meta_employees, ):
 
 
 @st.cache_data
-def get_timedelta(duration: str) -> datetime.timedelta:
-    (hh, mm) = hh_mm(duration)
-    delta = datetime.timedelta(hours=hh, minutes=mm)
-
-    return delta
-
-
-@st.cache_data
 def get_errors_min_max_days(rostering, meta_employees, meta_shifts, meta_schemas):
     # (employee_id, error_text, expected, actual)
     errors = []
@@ -165,7 +160,7 @@ def get_errors_min_max_days(rostering, meta_employees, meta_shifts, meta_schemas
         employee_schema = s['schemaId']
         employee_utc = s['employeeUtc']
         employee_tz = datetime.timezone(datetime.timedelta(hours=employee_utc))
-        delta = get_timedelta(meta_shifts[employee_shift]['duration'])
+        delta = hh_mm_timedelta(meta_shifts[employee_shift]['duration'])
 
         shift_date = datetime.datetime.strptime(s['shiftDate'], '%d.%m.%y')
         (hh, mm) = hh_mm(s['shiftTimeStart'])
@@ -179,7 +174,7 @@ def get_errors_min_max_days(rostering, meta_employees, meta_shifts, meta_schemas
         )
 
 
-    _12h_delta = get_timedelta("12:00")
+    _12h_delta = hh_mm_timedelta("12:00")
     for employee_id, employee_schedule in employee_schedule.items():
 
         # just sort days ascending
@@ -256,20 +251,3 @@ if rostering_file is not None and meta_file is not None:
 
         col1, = st.columns(1)
         col1.metric('Errors count', len(df_errors))
-
-    # # Plotly!
-    # fig = px.timeline(df, x_start="Start", x_end="Finish", y="Employee", color="Activity", height=num_employees*16)
-    # fig.update_yaxes(autorange="reversed", visible=False, showticklabels=False)
-    # fig.update_layout(showlegend=False)
-    # for i, d in enumerate(fig.data):
-    #     d.width = df[df['Activity'] == d.name]['width']
-    # # fig.update_xaxes(rangeslider_visible=True)
-    #
-    # st.subheader('Shifts with activities plot')
-    # st.plotly_chart(fig, use_container_width=True)
-    # st.caption('Shifts with activities plot')
-
-# Streamlit widgets automatically run the script from top to bottom. Since
-# this button is not connected to any other logic, it just causes a plain
-# rerun.
-# st.button("Re-run")
