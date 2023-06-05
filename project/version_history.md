@@ -1,3 +1,6 @@
+## Version 1.2.0
+ - Lib updated to 0.8.0
+ - New reports added
 ## Version 1.1.5
  - Lib updated to 0.7.5
 ## Version 1.1.4
