@@ -349,7 +349,7 @@
     {
       "id": "f300f602-b2d8-1630-7064-2579d398466b",
       "utc": 4,
-      "minWorkingHours": 128,
+      "minWorkingHours": 100,
       "maxWorkingHours": 128,
       "schemas": [
         "a5ccd346-ac6a-447c-94dc-12d7f77c6dc3"
@@ -358,7 +358,7 @@
     {
       "id": "f357918b-9afb-be4c-2913-6d76033fc2ea",
       "utc": 7,
-      "minWorkingHours": 136,
+      "minWorkingHours": 100,
       "maxWorkingHours": 136,
       "schemas": [
         "802e29ae-563d-4ea1-94b6-100aa4b0f4b0"
@@ -367,7 +367,7 @@
     {
       "id": "f39f6f54-273c-c68d-91eb-7443932a64ad",
       "utc": 3,
-      "minWorkingHours": 152,
+      "minWorkingHours": 100,
       "maxWorkingHours": 152,
       "schemas": [
         "922b1448-20d9-4e27-a8ca-5c7fd63a4c38"

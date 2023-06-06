@@ -52,6 +52,12 @@ def test_actual_time_3th_employee_29_day():
     maxWorkingHoursE1 = meta['employees'][0]['maxWorkingHours']
     maxWorkingHoursE2 = meta['employees'][1]['maxWorkingHours']
     maxWorkingHoursE3 = meta['employees'][2]['maxWorkingHours']
+    minWorkingHoursE1 = meta['employees'][0]['maxWorkingHours']
+    minWorkingHoursE2 = meta['employees'][1]['maxWorkingHours']
+    minWorkingHoursE3 = meta['employees'][2]['maxWorkingHours']
     assert maxWorkingHoursE1 == employees1
+    assert minWorkingHoursE1 <= employees1
     assert maxWorkingHoursE2 == employees2
+    assert minWorkingHoursE2 <= employees2
     assert maxWorkingHoursE3 == employees3
+    assert minWorkingHoursE3 <= employees3
