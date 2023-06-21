@@ -19,7 +19,7 @@ def test_first_employees_shift_time_start():
         meta = json.load(f)
 
     res = requests.post(os.getenv('urlpost'), files=files)
-    time.sleep(20)
+    time.sleep(30)
 
     id = (res.json()['id'])
     response = requests.get(os.getenv('urlget') + f'task/{id}/result')

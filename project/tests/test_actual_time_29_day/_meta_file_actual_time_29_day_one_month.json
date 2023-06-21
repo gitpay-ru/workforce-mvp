@@ -1,0 +1,371 @@
+{
+  "campainUtc": 3,
+  "activities": [
+    {
+      "id": "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+      "duration": "00:15",
+      "timeStart": "01:00",
+      "timeEndStart": "04:00",
+      "isPaid": false
+    },
+    {
+      "id": "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+      "duration": "00:30",
+      "timeStart": "03:00",
+      "timeEndStart": "05:30",
+      "isPaid": false
+    },
+    {
+      "id": "0ec194a4-4ade-431b-b917-290514635561",
+      "duration": "00:15",
+      "timeStart": "05:30",
+      "timeEndStart": "08:00",
+      "isPaid": false
+    },
+    {
+      "id": "c6ce6ded-c7ba-41a9-bd4e-6caf4588e243",
+      "duration": "00:30",
+      "timeStart": "03:00",
+      "timeEndStart": "05:30",
+      "isPaid": false
+    },
+    {
+      "id": "f03f65e2-acfc-4e75-b76f-4901db3a2400",
+      "duration": "00:15",
+      "timeStart": "05:30",
+      "timeEndStart": "08:00",
+      "isPaid": false
+    },
+    {
+      "id": "3cb80323-8dd4-4dc9-a5db-51bf23d0be01",
+      "duration": "00:15",
+      "timeStart": "01:00",
+      "timeEndStart": "04:00",
+      "isPaid": false
+    },
+    {
+      "id": "7449d2e2-1ae9-4178-9b1f-277b74924475",
+      "duration": "00:15",
+      "timeStart": "05:30",
+      "timeEndStart": "08:00",
+      "isPaid": false
+    },
+    {
+      "id": "857a8fda-77d1-4ade-ae12-d02c625d2f8d",
+      "duration": "00:30",
+      "timeStart": "03:00",
+      "timeEndStart": "05:30",
+      "isPaid": false
+    },
+    {
+      "id": "39c76ab7-55a5-4700-a900-0fb0bb3b9435",
+      "duration": "00:15",
+      "timeStart": "01:00",
+      "timeEndStart": "04:00",
+      "isPaid": false
+    }
+  ],
+  "shifts": [
+    {
+      "id": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+      "duration": "09:00",
+      "stepTime": "00:15",
+      "scheduleTimeStart": "06:00",
+      "scheduleTimeEndStart": "12:45",
+      "minIntervalBetweenActivities": "01:30",
+      "maxIntervalBetweenActivities": "03:30",
+      "activities": [
+        "eaf856e4-4c93-40bf-95c2-eb0ba72e159a",
+        "57cfd71d-1e8f-42b5-8b0d-c75bfb711602",
+        "0ec194a4-4ade-431b-b917-290514635561"
+      ]
+    },
+    {
+      "id": "31a095d6-6c31-4656-bb43-997834460c69",
+      "duration": "09:00",
+      "stepTime": "00:15",
+      "scheduleTimeStart": "06:00",
+      "scheduleTimeEndStart": "12:45",
+      "minIntervalBetweenActivities": "01:30",
+      "maxIntervalBetweenActivities": "03:30",
+      "activities": [
+        "c6ce6ded-c7ba-41a9-bd4e-6caf4588e243",
+        "f03f65e2-acfc-4e75-b76f-4901db3a2400",
+        "3cb80323-8dd4-4dc9-a5db-51bf23d0be01"
+      ]
+    },
+    {
+      "id": "2b2947dc-47c1-4fab-a39f-bf488283b523",
+      "duration": "09:00",
+      "stepTime": "00:15",
+      "scheduleTimeStart": "06:00",
+      "scheduleTimeEndStart": "12:45",
+      "minIntervalBetweenActivities": "01:30",
+      "maxIntervalBetweenActivities": "03:30",
+      "activities": [
+        "7449d2e2-1ae9-4178-9b1f-277b74924475",
+        "857a8fda-77d1-4ade-ae12-d02c625d2f8d",
+        "39c76ab7-55a5-4700-a900-0fb0bb3b9435"
+      ]
+    }
+  ],
+  "schemas": [
+    {
+      "id": "922b1448-20d9-4e27-a8ca-5c7fd63a4c38",
+      "holidays": {
+        "minDaysInRow": 1,
+        "maxDaysInRow": 3,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      "shifts": [
+        {
+          "shiftId": "8b73ad1c-f897-4c0c-bb45-936ea7c8e71b",
+          "minDaysInRow": 1,
+          "maxDaysInRow": 5,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ]
+        }
+      ]
+    },
+    {
+      "id": "a5ccd346-ac6a-447c-94dc-12d7f77c6dc3",
+      "holidays": {
+        "minDaysInRow": 1,
+        "maxDaysInRow": 3,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      "shifts": [
+        {
+          "shiftId": "2b2947dc-47c1-4fab-a39f-bf488283b523",
+          "minDaysInRow": 1,
+          "maxDaysInRow": 5,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ]
+        }
+      ]
+    },
+    {
+      "id": "802e29ae-563d-4ea1-94b6-100aa4b0f4b0",
+      "holidays": {
+        "minDaysInRow": 1,
+        "maxDaysInRow": 3,
+        "days": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      "shifts": [
+        {
+          "shiftId": "31a095d6-6c31-4656-bb43-997834460c69",
+          "minDaysInRow": 1,
+          "maxDaysInRow": 5,
+          "days": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            19,
+            20,
+            21,
+            22,
+            23,
+            24,
+            25,
+            26,
+            27,
+            28,
+            29
+          ]
+        }
+      ]
+    }
+  ],
+  "employees": [
+    {
+      "id": "f300f602-b2d8-1630-7064-2579d398466b",
+      "utc": 4,
+      "minWorkingHours": 100,
+      "maxWorkingHours": 128,
+      "schemas": [
+        "a5ccd346-ac6a-447c-94dc-12d7f77c6dc3"
+      ]
+    },
+    {
+      "id": "f357918b-9afb-be4c-2913-6d76033fc2ea",
+      "utc": 7,
+      "minWorkingHours": 100,
+      "maxWorkingHours": 136,
+      "schemas": [
+        "802e29ae-563d-4ea1-94b6-100aa4b0f4b0"
+      ]
+    },
+    {
+      "id": "f39f6f54-273c-c68d-91eb-7443932a64ad",
+      "utc": 3,
+      "minWorkingHours": 100,
+      "maxWorkingHours": 152,
+      "schemas": [
+        "922b1448-20d9-4e27-a8ca-5c7fd63a4c38"
+      ]
+    }
+  ]
+}
